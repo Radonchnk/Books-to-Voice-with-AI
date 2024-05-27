@@ -8,7 +8,6 @@ from tools.TEXTtoVOICEgtts import *
 from tools.TEXTtoVOICEespeak import *
 from tools.TEXTtoVOICEttsfree import *
 
-f
 class PDFtoVoiceApp:
     def __init__(self, root):
         self.root = root
