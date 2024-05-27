@@ -18,7 +18,6 @@ class PDFtoVoiceApp:
         self.current_window = None
 
         root.title("PDF to Voice App")
-
         # Create a frame to hold the buttons
         button_frame = tk.Frame(root)
         button_frame.pack(pady=20)  # Add some padding
