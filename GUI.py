@@ -29,7 +29,7 @@ class PDFtoVoiceApp:
         # Pack buttons horizontally with some spacing
         self.book_to_voice_button.pack(side=tk.LEFT, padx=10)
         self.text_to_voice_button.pack(side=tk.LEFT, padx=10)
-d
+
     def select_pdf(self):
         file_path = filedialog.askopenfilename(filetypes=[("PDF Files", "*.pdf")])
         if file_path:
