@@ -9,4 +9,4 @@ num2words
 pymupdf
 gtts
 pydub
-muagen
+mutagen
