@@ -1,5 +1,4 @@
 import time
-import subprocess
 from concurrent.futures import ThreadPoolExecutor
 from tools.tts import *
 from tools.tiny_tools import *
