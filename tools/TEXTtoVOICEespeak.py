@@ -43,7 +43,7 @@ class TextToVoiceProcessor:
             command = ["ffmpeg", "-i", "concat:{}|{}".format(file1, file2), "-c", "copy", f"{self.temp_folder}/temp.mp3"]
             subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-            if os.path.exists("temp/temp.mp3"):
+            if os.path.exists(f"{self.temp_folder}/temp.mp3"):
                 os.remove(file1)
                 os.remove(file2)
                 shutil.move(f"{self.temp_folder}/temp.mp3", output_file)

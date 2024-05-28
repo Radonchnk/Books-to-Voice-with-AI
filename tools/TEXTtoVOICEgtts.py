@@ -41,10 +41,11 @@ class TextToVoiceProcessorGTTS:
     def merge_audio_pairs(self):
 
         def concatenate_mp3_files(file1, file2, output_file):
-            command = ["ffmpeg", "-i", "concat:{}|{}".format(file1, file2), "-c", "copy", "temp/temp.mp3"]
+            command = ["ffmpeg", "-i", "concat:{}|{}".format(file1, file2), "-c", "copy",
+                       f"{self.temp_folder}/temp.mp3"]
             subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-            if os.path.exists("temp/temp.mp3"):
+            if os.path.exists(f"{self.temp_folder}/temp.mp3"):
                 os.remove(file1)
                 os.remove(file2)
                 shutil.move(f"{self.temp_folder}/temp.mp3", output_file)
@@ -85,6 +86,73 @@ class TextToVoiceProcessorGTTS:
                 pairs = create_pairs(all_files)
 
     def process_chunks(self):
+
+        def divide_into_sentences(text):
+            sentences = []
+            current_sentence = ""
+            remove_characters = ["'"]
+            sentence_endings = ['.', '!', '?']
+            max_consecutive_numbers = 5
+            consecutive_numbers_count = 0
+            refuse_length = 1
+
+            math_operations = {
+                '+': 'plus',
+                '-': 'minus',
+                '*': 'times',
+                '/': 'divided by',
+                '%': 'percent',
+                '–': 'minus',
+                '=': 'equals'
+            }
+
+            for char in text:
+                if char in remove_characters:
+                    char = " "  # Replace apostrophes with spaces
+                if char.isupper():
+                    current_sentence += char.lower()  # Convert uppercase to lowercase
+                else:
+                    current_sentence += char
+
+                if char.isdigit():
+                    consecutive_numbers_count += 1
+                    if consecutive_numbers_count > max_consecutive_numbers:
+                        current_sentence = current_sentence[:-1]
+                else:
+                    consecutive_numbers_count = 0
+
+                if char in math_operations:
+                    current_sentence = current_sentence[:-1] + math_operations[char] + ' '
+
+                if char in sentence_endings:
+                    if len(current_sentence.strip()) > (refuse_length + 1):  # Skip single-letter sentences
+                        sentences.append(current_sentence.strip())
+                    current_sentence = ""
+
+            if current_sentence and len(current_sentence.strip()) > 1:
+                sentences.append(current_sentence.strip())
+
+            return sentences
+
+        def split_into_subarrays(strings, max_length):
+            subarrays = []
+            current_subarray = []
+
+            current_length = 0
+            for string in strings:
+                if current_length + len(string) > max_length and current_subarray:
+                    subarrays.append(' '.join(current_subarray))
+                    current_subarray = []
+                    current_length = 0
+
+                current_subarray.append(string)
+                current_length += len(string)
+
+            if current_subarray:
+                subarrays.append(''.join(current_subarray))
+
+            return subarrays
+
         if not os.path.exists(self.temp_folder):
             os.makedirs(self.temp_folder)
 
@@ -94,7 +162,9 @@ class TextToVoiceProcessorGTTS:
         with open(f"{self.text_folder}/{self.input_text_name}.txt", 'r', encoding='utf-8') as f:
             input_text = f.read()
 
-        self.chunks = [input_text[i:i + self.chunk_size] for i in range(0, len(input_text), self.chunk_size)]
+        sentences = divide_into_sentences(input_text)
+        self.chunks = split_into_subarrays(sentences, self.chunk_size)
+        self.len = len(self.chunks)
 
         with ThreadPoolExecutor(max_workers=self.max_simultaneous_threads) as executor:
             for idx, chunk in enumerate(self.chunks):
