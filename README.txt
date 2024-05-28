@@ -1,2 +1,1 @@
-pip install git+https://github.com/huggingface/parler-tts.git
 pip install -r requirements.txt

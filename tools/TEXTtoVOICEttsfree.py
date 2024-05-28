@@ -9,9 +9,9 @@ from mutagen.mp3 import MP3
 
 class TextToVoiceProcessorTTSfree:
     def __init__(self, input_text_name, temp_folder, text_folder, voiced_folder, chunk_size, max_retries, retry_delay,
-                 max_simultaneous_threads, language, model_path):
+                 max_simultaneous_threads, language, model_path, description):
         self.input_text_name = input_text_name
-        self.temp_folder = temp_folder #+ str()
+        self.temp_folder = temp_folder  # + str()
         self.text_folder = text_folder
         self.voiced_folder = voiced_folder
         self.chunk_size = int(chunk_size)
@@ -24,6 +24,8 @@ class TextToVoiceProcessorTTSfree:
         self.len = 0
         self.time_start = time.time()
         self.tools = tools_set()
+        self.description = description
+        print(description)
 
     def get_mp3_duration(self, mp3_path):
         audio = MP3(mp3_path)
@@ -45,8 +47,8 @@ class TextToVoiceProcessorTTSfree:
 
                 output_wav_file = os.path.join(self.temp_folder, f'chunk{idx}.wav')
                 output_mp3_file = os.path.join(self.temp_folder, f'chunk{idx}.mp3')
-
-                self.tts.textToMP3(text, output_wav_file)
+                print("Description:",self.description)
+                self.tts.textToMP3(text, output_wav_file, self.description)
 
                 chunk_audio = AudioSegment.from_wav(output_wav_file)
                 chunk_audio.export(output_mp3_file, format='mp3')

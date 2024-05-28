@@ -46,7 +46,7 @@ class TextToSpeach:
 
         self.tts = Model(model_name)
 
-    def textToMP3(self, text, ouput_file):
+    def textToMP3(self, text, ouput_file, description):
         if torch.cuda.is_available():
             print("""
           _____          _       
@@ -55,8 +55,6 @@ class TextToSpeach:
         | |   | | | |/ _` |/ _` |
         | |___| |_| | (_| | (_| |
          \_____\__,_|\__,_|\__,_|""")
-
-        description = "Jenny speaks at an average pace with an animated delivery in a very confined sounding environment with clear audio quality."
 
         waveform = self.tts.textToSpeech(text, description)
 
