@@ -25,7 +25,6 @@ class TextToVoiceProcessorTTSfree:
         self.time_start = time.time()
         self.tools = tools_set()
         self.description = description
-        print(description)
 
     def get_mp3_duration(self, mp3_path):
         audio = MP3(mp3_path)
@@ -78,8 +77,8 @@ class TextToVoiceProcessorTTSfree:
         hours_spent, minutes_spent, seconds_spent = self._format_time(time_taken)
 
         print(f"\n\n\n======================================")
-        print(f"Time spent: {hours_spent}:{minutes_spent}:{seconds_spent}")
-        print(f"Expected time left: {hours_left}:{minutes_left}:{seconds_left}")
+        print(f"Time spent: {str(hours_spent).zfill(2)}:{str(minutes_spent).zfill(2)}:{str(seconds_spent).zfill(2)}")
+        print(f"Expected time left: {str(hours_left).zfill(2)}:{str(minutes_left).zfill(2)}:{str(seconds_left).zfill(2)}")
         print(f"======================================\n\n\n")
 
     def merge_audio_pairs(self):
@@ -135,8 +134,18 @@ class TextToVoiceProcessorTTSfree:
                 pairs = create_pairs(all_files)
 
     def process_chunks(self):
+        def replace_numbers_with_words(text):
+            numberPattern = re.compile(r'\b\d+\b')
+
+            def number_to_words(match):
+                number = int(match.group())
+                return num2words(number)
+
+            result = numberPattern.sub(number_to_words, text)
+            return result
 
         def divide_into_sentences(text):
+            text = replace_numbers_with_words(text)
             sentences = []
             current_sentence = ""
             remove_characters = ["'"]
@@ -213,7 +222,7 @@ class TextToVoiceProcessorTTSfree:
 
         sentences = divide_into_sentences(input_text)
         self.chunks = split_into_subarrays(sentences, self.chunk_size)
-        print(self.chunks)
+        # print(self.chunks)
         self.len = len(self.chunks)
 
         with ThreadPoolExecutor(max_workers=self.max_simultaneous_threads) as executor:
