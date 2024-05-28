@@ -10,7 +10,7 @@ from mutagen.mp3 import MP3
 
 class TextToVoiceProcessorTTSfree:
     def __init__(self, input_text_name, temp_folder, text_folder, voiced_folder, chunk_size, max_retries, retry_delay,
-                 max_simultaneous_threads, language, patho_to_models, model_path):
+                 max_simultaneous_threads, language, model_path):
         self.input_text_name = input_text_name
         self.temp_folder = temp_folder #+ str()
         self.text_folder = text_folder
@@ -20,7 +20,7 @@ class TextToVoiceProcessorTTSfree:
         self.retry_delay = int(retry_delay)
         self.max_simultaneous_threads = int(max_simultaneous_threads)
         self.language = language
-        self.tts = TextToSpeach(patho_to_models, model_path)
+        self.tts = TextToSpeach(model_path)
         self.chunks = []
         self.len = 0
         self.time_start = time.time()
@@ -47,7 +47,6 @@ class TextToVoiceProcessorTTSfree:
                 output_wav_file = os.path.join(self.temp_folder, f'chunk{idx}.wav')
                 output_mp3_file = os.path.join(self.temp_folder, f'chunk{idx}.mp3')
 
-
                 self.tts.textToMP3(text, output_wav_file)
 
                 chunk_audio = AudioSegment.from_wav(output_wav_file)
@@ -63,10 +62,8 @@ class TextToVoiceProcessorTTSfree:
                 print(f"Chunk {idx}/{self.len} processed successfully.")
 
                 self._time_manager(idx)
-
-
-
                 return
+
             except Exception as e:
                 print(f"Error processing chunk {idx}: {e}")
                 retry_count += 1
@@ -215,6 +212,7 @@ class TextToVoiceProcessorTTSfree:
 
         sentences = divide_into_sentences(input_text)
         self.chunks = split_into_subarrays(sentences, self.chunk_size)
+        print(self.chunks)
         self.len = len(self.chunks)
 
         with ThreadPoolExecutor(max_workers=self.max_simultaneous_threads) as executor:
@@ -244,7 +242,6 @@ if __name__ == "__main__":
         retry_delay=600,
         max_simultaneous_threads=1,
         language="en",
-        patho_to_models="/home/rad/PycharmProjects/PDFtoVOICE/venv/lib/python3.10/site-packages/TTS/.models.json",
-        model_path="tts_models/en/ljspeech/tacotron2-DDC"
+        model_path="parler-tts/parler-tts-mini-jenny-30H"
     )
     processor.process_chunks()

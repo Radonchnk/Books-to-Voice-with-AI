@@ -127,13 +127,12 @@ class PDFtoVoiceApp:
             "text_folder": self.path_to_text_folder,
             "temp_folder": self.temp_folder,
             "voiced_folder": self.path_to_text_folder,
-            "chunk_size": 1,
+            "chunk_size": 10,
             "max_retries": 2,
             "retry_delay": 1,
             "max_simultaneous_threads": 1,
             "language": "en",
-            "patho_to_models": "/home/rad/PycharmProjects/PDFtoVOICE/venv/lib/python3.10/site-packages/TTS/.models.json",
-            "model_path": "tts_models/en/ljspeech/tacotron2-DDC"
+            "model_path": "parler-tts/parler-tts-mini-jenny-30H"
         }
 
         # Get the appropriate fields based on the selected option
