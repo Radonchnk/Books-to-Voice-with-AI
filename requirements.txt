@@ -10,3 +10,4 @@ pymupdf
 gtts
 pydub
 mutagen
+git+https://github.com/huggingface/parler-tts.git
