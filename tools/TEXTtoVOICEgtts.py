@@ -102,7 +102,7 @@ class TextToVoiceProcessorGTTS:
                 '*': 'times',
                 '/': 'divided by',
                 '%': 'percent',
-                '–': 'minus',
+                '?': 'minus',
                 '=': 'equals'
             }
 

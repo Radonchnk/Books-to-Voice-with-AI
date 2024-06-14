@@ -115,7 +115,7 @@ class TextToVoiceProcessor:
                 '*': 'times',
                 '/': 'divided by',
                 '%': 'percent',
-                '–': 'minus',
+                '?': 'minus',
                 '=': 'equals'
             }
 

@@ -7,7 +7,6 @@ from tools.TEXTtoVOICEgtts import *
 from tools.TEXTtoVOICEespeak import *
 from tools.TEXTtoVOICEttsfree import *
 
-
 class PDFtoVoiceApp:
     def __init__(self, root):
         self.root = root
@@ -133,8 +132,7 @@ class PDFtoVoiceApp:
             "retry_delay": 1,
             "max_simultaneous_threads": 1,
             "language": "en",
-            "model_path": "parler-tts/parler-tts-mini-expresso",
-            "description": "Jenny speaks at an average pace with an animated delivery in a very confined sounding environment with clear audio quality."
+            "model_path": "parler-tts/parler-tts-mini-jenny-30H"
         }
 
         # Get the appropriate fields based on the selected option

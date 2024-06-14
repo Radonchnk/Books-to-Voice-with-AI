@@ -28,9 +28,10 @@ class Model:
             waveform = waveform.reshape(-1, 1)
         try:
             sf.write(fileName, waveform, samplerate=self.model.config.sampling_rate)
-            print(f"\nSpeech has been saved to {fileName}\n")
+            # saves WAV file to output path
         except IndexError:
-            print(f"\n\n\nFailed to save to {fileName}, perhaps there was no speech? Tries attempted 2\n\n\n")
+            raise IndexError
+            # if error is there
 
     def replaceNumbersWithWords(self, text):
         numberPattern = re.compile(r'\b\d+\b')
@@ -50,13 +51,7 @@ class TextToSpeach:
 
     def textToMP3(self, text, outputFile, description):
         if torch.cuda.is_available():
-            print("""
-          _____          _       
-         / ____|        | |      
-        | |    _   _  __| | __ _ 
-        | |   | | | |/ _` |/ _` |
-        | |___| |_| | (_| | (_| |
-         \_____\__,_|\__,_|\__,_|""")
+            print("""CUDA IS USED""")
 
         waveformOutput = self.tts.textToSpeech(text, description)
 

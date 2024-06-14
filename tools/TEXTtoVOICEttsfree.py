@@ -1,3 +1,4 @@
+import os
 import time
 from concurrent.futures import ThreadPoolExecutor
 from tools.tts import *
@@ -9,9 +10,9 @@ from mutagen.mp3 import MP3
 
 class TextToVoiceProcessorTTSfree:
     def __init__(self, input_text_name, temp_folder, text_folder, voiced_folder, chunk_size, max_retries, retry_delay,
-                 max_simultaneous_threads, language, model_path, description):
+                 max_simultaneous_threads, language, model_path):
         self.input_text_name = input_text_name
-        self.temp_folder = temp_folder  # + str()
+        self.temp_folder = temp_folder #+ str()
         self.text_folder = text_folder
         self.voiced_folder = voiced_folder
         self.chunk_size = int(chunk_size)
@@ -24,7 +25,6 @@ class TextToVoiceProcessorTTSfree:
         self.len = 0
         self.time_start = time.time()
         self.tools = tools_set()
-        self.description = description
 
     def get_mp3_duration(self, mp3_path):
         audio = MP3(mp3_path)
@@ -39,25 +39,25 @@ class TextToVoiceProcessorTTSfree:
 
     def _send_tts_request(self, text, idx):
         retry_count = 0
-        while retry_count <= self.max_retries:
+        while retry_count < self.max_retries:
             try:
 
                 print(f"Processing chunk {idx}/{self.len}...")
 
                 output_wav_file = os.path.join(self.temp_folder, f'chunk{idx}.wav')
                 output_mp3_file = os.path.join(self.temp_folder, f'chunk{idx}.mp3')
-                print("Description:",self.description)
-                self.tts.textToMP3(text, output_wav_file, self.description)
+
+                print(f"Text of the processed chunk:\n{text}")
+                self.tts.textToMP3(text, output_wav_file)
 
                 chunk_audio = AudioSegment.from_wav(output_wav_file)
                 chunk_audio.export(output_mp3_file, format='mp3')
+
+                # Check if AI succeeded to generate the output
+                if not os.path.exists(output_wav_file):
+                    raise f"Could not generate WAV file for the chunk {idx}"
+
                 os.remove(output_wav_file)
-
-                if self.get_mp3_duration(output_mp3_file) == 116:
-                    #> Decoder stopped with `max_decoder_steps` 10000
-                    os.remove(output_mp3_file)
-                    self.tools.Espeak(self.temp_folder, text, f'chunk{idx}')
-
 
                 print(f"Chunk {idx}/{self.len} processed successfully.")
 
@@ -65,23 +65,33 @@ class TextToVoiceProcessorTTSfree:
                 return
 
             except Exception as e:
-                print(f"Error processing chunk {idx}: {e}")
+                print(f"Error processing chunk {idx}:\n {e}")
                 retry_count += 1
                 print(f"Retrying chunk {idx} ({retry_count}/{self.max_retries})...")
                 time.sleep(self.retry_delay)
 
+        if retry_count == self.max_retries:
+            # if smething went silly - attempt is made to
+            print("Using ESPEAK to replace unprocessed chunk")
+            self.tools.Espeak(self.temp_folder, text, f'chunk{idx}')
+
+            self._time_manager(idx)
+
+
     def _time_manager(self, idx):
+        # This punction prints how much ime is spent generating and estimated time
         time_taken = time.time() - self.time_start
         expected_time_seconds = (self.len - (idx + 1)) * (time_taken / (idx + 1))
         hours_left, minutes_left, seconds_left = self._format_time(expected_time_seconds)
         hours_spent, minutes_spent, seconds_spent = self._format_time(time_taken)
 
         print(f"\n\n\n======================================")
-        print(f"Time spent: {str(hours_spent).zfill(2)}:{str(minutes_spent).zfill(2)}:{str(seconds_spent).zfill(2)}")
-        print(f"Expected time left: {str(hours_left).zfill(2)}:{str(minutes_left).zfill(2)}:{str(seconds_left).zfill(2)}")
-        print(f"======================================\n\n\n")
+        print(f"Time spent: {hours_spent}:{minutes_spent}:{seconds_spent}")
+        print(f"Expected time left: {hours_left}:{minutes_left}:{seconds_left}")
+        print(f"======================================")
 
     def merge_audio_pairs(self):
+        # This function merges
         def concatenate_mp3_files(file1, file2, output_file):
             command = ["ffmpeg", "-i", "concat:{}|{}".format(file1, file2), "-c", "copy", f"{self.temp_folder}/temp.mp3"]
             subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -134,18 +144,9 @@ class TextToVoiceProcessorTTSfree:
                 pairs = create_pairs(all_files)
 
     def process_chunks(self):
-        def replace_numbers_with_words(text):
-            numberPattern = re.compile(r'\b\d+\b')
-
-            def number_to_words(match):
-                number = int(match.group())
-                return num2words(number)
-
-            result = numberPattern.sub(number_to_words, text)
-            return result
+        # This function is responcible for splitting text into chunks and making them into a text book
 
         def divide_into_sentences(text):
-            text = replace_numbers_with_words(text)
             sentences = []
             current_sentence = ""
             remove_characters = ["'"]
@@ -160,7 +161,7 @@ class TextToVoiceProcessorTTSfree:
                 '*': 'times',
                 '/': 'divided by',
                 '%': 'percent',
-                '–': 'minus',
+                '?': 'minus',
                 '=': 'equals'
             }
 
@@ -222,7 +223,6 @@ class TextToVoiceProcessorTTSfree:
 
         sentences = divide_into_sentences(input_text)
         self.chunks = split_into_subarrays(sentences, self.chunk_size)
-        # print(self.chunks)
         self.len = len(self.chunks)
 
         with ThreadPoolExecutor(max_workers=self.max_simultaneous_threads) as executor:
