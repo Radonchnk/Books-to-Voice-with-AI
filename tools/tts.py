@@ -45,9 +45,9 @@ class Model:
 
 
 class TextToSpeach:
-    def __init__(self, model_name):
-
-        self.tts = Model(model_name)
+    def __init__(self, model):
+        self.tts = model
+        # self.tts = Model(model_name)
 
     def textToMP3(self, text, outputFile, description):
         if torch.cuda.is_available():

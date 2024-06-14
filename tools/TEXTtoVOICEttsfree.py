@@ -20,7 +20,8 @@ class TextToVoiceProcessorTTSfree:
         self.retry_delay = int(retry_delay)
         self.max_simultaneous_threads = int(max_simultaneous_threads)
         self.language = language
-        self.tts = TextToSpeach(model_path)
+        self.ttsModel = Model(model_path)
+        self.tts = TextToSpeach(self.ttsModel)
         self.chunks = []
         self.len = 0
         self.time_start = time.time()
