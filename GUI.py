@@ -1,6 +1,8 @@
+import os
 import tkinter as tk
 from tkinter import filedialog
 import random
+import json
 
 from tools.PDFtoTEXT import *
 from tools.TEXTtoVOICEgtts import *
@@ -14,6 +16,8 @@ class PDFtoVoiceApp:
         self.text_file_name = ""
         self.temp_folder = f"temp{random.randint(0, 1000)}"
         self.current_window = None
+        self.current_directory = os.getcwd()
+        self.settings_file = "Settings"
 
         root.title("PDF to Voice App")
         # Create a frame to hold the buttons
@@ -90,6 +94,24 @@ class PDFtoVoiceApp:
         gtts_button.pack(side=tk.LEFT, padx=10)
         ai_tts_button.pack(side=tk.LEFT, padx=10)
 
+    def load_settings_from_file(self, path_to_save):
+
+        # standard fields for any settings
+        data = {
+            "input_text_name": self.text_file_name,
+            "text_folder": self.path_to_text_folder,
+            "temp_folder": self.temp_folder,
+            "voiced_folder": self.path_to_text_folder
+        }
+
+        # updating custom settings
+        paths = self.current_directory + "/" + self.settings_file + "/" + path_to_save + ".json"
+        with open(paths, 'r') as file:
+            data.update(json.load(file))
+
+        return data
+
+
     def voice_with(self, option):
         # Close the current window, if any
         if self.current_window:
@@ -101,40 +123,11 @@ class PDFtoVoiceApp:
         settings_window.title(f"{option} Settings")
 
         # Define dictionaries with field names and default values for each option
-        espeak_fields = {
-            "input_text_name": self.text_file_name,
-            "text_folder": self.path_to_text_folder,
-            "temp_folder": self.temp_folder,
-            "voiced_folder": self.path_to_text_folder,
-            "chunk_size": 1,
-            "max_retries": 5,
-            "retry_delay": 1,
-            "max_simultaneous_threads": 5
-        }
-        gtts_fields = {
-            "input_text_name": self.text_file_name,
-            "text_folder": self.path_to_text_folder,
-            "temp_folder": self.temp_folder,
-            "voiced_folder": self.path_to_text_folder,
-            "chunk_size": 1,
-            "max_retries": 5,
-            "retry_delay": 1,
-            "max_simultaneous_threads": 5,
-            "language": "en"
-        }
-        ai_tts_fields = {
-            "input_text_name": self.text_file_name,
-            "text_folder": self.path_to_text_folder,
-            "temp_folder": self.temp_folder,
-            "voiced_folder": self.path_to_text_folder,
-            "chunk_size": 10,
-            "max_retries": 2,
-            "retry_delay": 1,
-            "max_simultaneous_threads": 1,
-            "language": "en",
-            "model_path": "parler-tts/parler-tts-mini-jenny-30H",
-            "description": "Jenny speaks at an average pace with an animated delivery in a very confined sounding environment with clear audio quality."
-        }
+        espeak_fields = self.load_settings_from_file("espeak_fields")
+
+        gtts_fields = self.load_settings_from_file("gtts_fields")
+
+        ai_tts_fields = self.load_settings_from_file("ai_tts_fields")
 
         # Get the appropriate fields based on the selected option
         if option == "Use espeak":
