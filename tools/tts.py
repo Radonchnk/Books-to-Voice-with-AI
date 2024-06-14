@@ -53,8 +53,6 @@ class TextToSpeach:
         if torch.cuda.is_available():
             print("""CUDA IS USED""")
 
-        description = "Jenny speaks at an average pace with an animated delivery in a very confined sounding environment with clear audio quality."
-
         waveformOutput = self.tts.textToSpeech(text, description)
 
         self.tts.saveToFile(waveformOutput, outputFile)
