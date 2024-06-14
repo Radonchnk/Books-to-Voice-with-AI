@@ -53,7 +53,6 @@ class TextToSpeach:
         if torch.cuda.is_available():
             print("""CUDA IS USED""")
 
-
         waveformOutput = self.tts.textToSpeech(text, description)
 
         self.tts.saveToFile(waveformOutput, outputFile)

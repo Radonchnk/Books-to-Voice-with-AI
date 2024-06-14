@@ -132,7 +132,7 @@ class PDFtoVoiceApp:
             "retry_delay": 1,
             "max_simultaneous_threads": 1,
             "language": "en",
-            "model_path": "parler-tts/parler-tts-mini-jenny-30H",
+            "model_path": "parler-tts/parler-tts-mini-expresso",
             "description": "Jenny speaks at an average pace with an animated delivery in a very confined sounding environment with clear audio quality."
         }
 
