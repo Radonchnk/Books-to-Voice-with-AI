@@ -10,7 +10,7 @@ import threading
 
 class TextToVoiceProcessorTTSfree:
     def __init__(self, input_text_name, temp_folder, text_folder, voiced_folder, chunk_size, max_retries, retry_delay,
-                 max_simultaneous_threads, language, model_path, description="", attempt_useGPU=1):
+                 max_simultaneous_threads, language, model_path, description="", attempt_use_gpu=1):
         self.input_text_name = input_text_name
         self.temp_folder = temp_folder
         self.text_folder = text_folder
@@ -36,7 +36,7 @@ class TextToVoiceProcessorTTSfree:
         self.cpuTTSModel = Model(model_path, "cpu", self.description)
         self.cpuTTS = TextToSpeach(self.cpuTTSModel)
 
-        if TextToSpeach.is_gpu_available():
+        if TextToSpeach.is_gpu_available() and attempt_use_gpu==1:
             self.gpuTTSModel = Model(model_path, "cuda", self.description)
             self.gpuTTS = TextToSpeach(self.gpuTTSModel)
             self.useGPU = True
