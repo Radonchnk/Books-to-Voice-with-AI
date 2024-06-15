@@ -41,7 +41,13 @@ class TextToVoiceProcessorTTSfree:
             self.gpuTTSModel = Model(model_path, "cuda", self.description)
             self.gpuTTS = TextToSpeach(self.gpuTTSModel)
             self.use_gpu = True
-            print("GPU model initialised")
+            print("""
+               _____          _       
+              / ____|        | |      
+             | |    _   _  __| | __ _ 
+             | |   | | | |/ _` |/ _` |
+             | |___| |_| | (_| | (_| |
+              \_____\__,_|\__,_|\__,_|""")
         else:
             self.use_gpu = False
             print("GPU not available, using CPU only")
