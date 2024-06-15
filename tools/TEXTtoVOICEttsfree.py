@@ -70,7 +70,7 @@ class TextToVoiceProcessorTTSfree:
 
                 print(f"Text of the processed chunk:\n{text}")
                 # Call model an process text
-                self.tts.textToMP3(text, output_wav_file, self.description)
+                self.tts.textToMP3(text, output_wav_file)
 
                 chunk_audio = AudioSegment.from_wav(output_wav_file)
                 chunk_audio.export(output_mp3_file, format='mp3')

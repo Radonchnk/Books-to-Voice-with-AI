@@ -46,8 +46,8 @@ class TextToSpeach:
     def __init__(self, model):
         self.tts = model
 
-    def textToMP3(self, text, outputFile, description):
-        waveformOutput = self.tts.textToSpeech(text, description)
+    def textToMP3(self, text, outputFile):
+        waveformOutput = self.tts.textToSpeech(text)
 
         self.tts.saveToFile(waveformOutput, outputFile)
 
