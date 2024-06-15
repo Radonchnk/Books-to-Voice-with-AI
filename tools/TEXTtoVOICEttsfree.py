@@ -31,16 +31,21 @@ class TextToVoiceProcessorTTSfree:
 
         # Process available devices
 
-        if not self.attempt_use_gpu:
-            # Use cpu by default
-            self.CPUttsModel = Model(model_path, "cpu", self.description)
-            self.tts = TextToSpeach(self.CPUttsModel)
-        elif self.attempt_use_gpu and TextToSpeach.is_gpu_available():
+        if self.attempt_use_gpu and TextToSpeach.is_gpu_available():
             # If GPU is there and USE_GPU load model using gpu
             self.GPUttsModel = Model(model_path, "cuda", self.description)
             self.tts = TextToSpeach(self.GPUttsModel)
-        elif self.attempt_use_gpu:
-            raise "GPU is not available"
+            print("""
+               _____          _       
+              / ____|        | |      
+             | |    _   _  __| | __ _ 
+             | |   | | | |/ _` |/ _` |
+             | |___| |_| | (_| | (_| |
+              \_____\__,_|\__,_|\__,_|""")
+        else:
+            # Use cpu by default
+            self.CPUttsModel = Model(model_path, "cpu", self.description)
+            self.tts = TextToSpeach(self.CPUttsModel)
 
     def get_mp3_duration(self, mp3_path):
         audio = MP3(mp3_path)

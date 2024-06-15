@@ -45,15 +45,17 @@ class Model:
 class TextToSpeach:
     def __init__(self, model):
         self.tts = model
-        # self.tts = Model(model_name)
 
     def textToMP3(self, text, outputFile, description):
-        if torch.cuda.is_available():
-            print("""CUDA IS USED""")
-
         waveformOutput = self.tts.textToSpeech(text, description)
 
         self.tts.saveToFile(waveformOutput, outputFile)
+
+    @classmethod
+    def is_gpu_available(cls):
+        if torch.cuda.is_available():
+            return 1
+        return 0
 
 
 if __name__ == "__main__":
