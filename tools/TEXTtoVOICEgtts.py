@@ -31,6 +31,8 @@ class TextToVoiceProcessorGTTS:
                 output_mp3_file = os.path.join(self.temp_folder, f'chunk{idx}.mp3')
                 tts.save(output_mp3_file)
 
+                self.tools.time_manager(self.time_start, idx, self.len)
+
                 print(f"Chunk {idx} processed successfully.")
                 self.tools.time_manager(time_start=self.time_start, chunks_done=idx, chunks_total=self.len)
                 return
@@ -44,7 +46,7 @@ class TextToVoiceProcessorGTTS:
         if retry_count == self.max_retries:
             # if something went silly - attempt is made to
             print("Using ESPEAK to replace unprocessed chunk")
-            self.tools.espeak(self.temp_folder, text, f'chunk{idx}')
+            self.tools.Espeak(self.temp_folder, text, f'chunk{idx}')
 
             self.tools.time_manager(time_start=self.time_start, chunks_done=idx, chunks_total=self.len)
 

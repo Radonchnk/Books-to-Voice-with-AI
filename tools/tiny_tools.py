@@ -4,9 +4,8 @@ from mutagen.mp3 import MP3
 import shutil
 import time
 
-
 class ToolsSet:
-    def espeak(self, temp_folder, text, output_filename):
+    def Espeak(self, temp_folder, text, output_filename):
         # Generate the WAV file using espeak
         temp_wav_file = os.path.join(temp_folder, f"{output_filename}.wav")
         subprocess.run(["espeak", text, "-w", temp_wav_file])
@@ -51,7 +50,6 @@ class ToolsSet:
         all_files = [f"chunk{x}.mp3" for x in all_files]
         pairs = create_pairs(all_files)
 
-        # TODO - Comment
         while len(os.listdir(folder)) > 1:
             for i in range(len(pairs)):
                 if len(pairs[i]) != 1:

@@ -1,4 +1,3 @@
-import time
 from concurrent.futures import ThreadPoolExecutor
 from tools.tiny_tools import *
 import shutil
@@ -27,7 +26,7 @@ class TextToVoiceProcessor:
             try:
                 print(f"Processing chunk {idx}...")
 
-                self.tools.espeak(self.temp_folder, text, f'chunk{idx}')
+                self.tools.Espeak(self.temp_folder, text, f'chunk{idx}')
 
                 self.tools.time_manager(time_start=self.time_start, chunks_done=idx, chunks_total=self.len)
 

@@ -1,38 +1,87 @@
-import os
-import tkinter as tk
-from tkinter import filedialog
-import random
-import json
+from customtkinter import *
+
 
 from tools.PDFtoTEXT import *
-from tools.TEXTtoVOICEgtts import *
-from tools.TEXTtoVOICEespeak import *
-from tools.TEXTtoVOICEttsfree import *
+from voiceProcessor import VoiceProcessor
 
-class PDFtoVoiceApp:
-    def __init__(self, root):
-        self.root = root
-        self.path_to_text_folder = ""
-        self.text_file_name = ""
-        self.temp_folder = f"temp{random.randint(0, 1000)}"
-        self.current_window = None
-        self.current_directory = os.getcwd()
-        self.settings_file = "Settings"
+class App(CTk):
+    def __init__(self, *args, **kwargs):
+        # Simular structure in other applications
+        super().__init__(*args, **kwargs)
 
-        root.title("PDF to Voice App")
-        # Create a frame to hold the buttons
-        button_frame = tk.Frame(root)
-        button_frame.pack(pady=20)  # Add some padding
+        set_appearance_mode("dark")
+        set_default_color_theme("green")
 
-        # Create buttons
-        self.book_to_voice_button = tk.Button(button_frame, text="Book to Voice", command=self.select_pdf)
-        self.text_to_voice_button = tk.Button(button_frame, text="Text to Voice", command=self.select_text)
+        self.title("Main menu")
 
-        # Pack buttons horizontally with some spacing
-        self.book_to_voice_button.pack(side=tk.LEFT, padx=10)
-        self.text_to_voice_button.pack(side=tk.LEFT, padx=10)
+        # Set size of window
+        width = 500
+        height = 300
 
-    def select_pdf(self):
+        # Get the screen width and height
+        screenWidth = self.winfo_screenwidth()
+        screenHeight = self.winfo_screenheight()
+
+        # Place window in center of screen
+        x = (screenWidth - width) // 2
+        y = (screenHeight - height) // 2
+        self.geometry(f"{width}x{height}+{x}+{y}")
+
+        self.frame = CTkFrame(master=self)
+        self.frame.pack(pady=20, padx=60, fill="both", expand=True)
+
+        # Setups main buttons
+        self.label = CTkLabel(master=self.frame, text="Book -> Audio")
+        self.label.grid(row=0, column=0, pady=12, padx=10, columnspan=3)
+        self.label.configure(font=("Roboto", 24))
+
+        button1 = CTkButton(master=self.frame, text="Convert text to audio", command=self.getTextFromUser,
+                            width=200,height=50)
+        button1.configure(font=("Roboto", 18))
+        button2 = CTkButton(master=self.frame, text="Convert book to audio", command=self.getBookFromUser, width=200,
+                            height=50)
+        button2.configure(font=("Roboto", 18))
+
+        # Places buttons
+        self.frame.grid_rowconfigure(1, weight=1)
+        self.frame.grid_rowconfigure(2, weight=1)
+
+        button1.grid(row=1, column=0, pady=12, padx=(10, 10))
+        button2.grid(row=2, column=0, pady=12, padx=(10, 10))
+
+        self.frame.grid_columnconfigure(0, weight=1)
+
+        self.frame.grid_propagate(False)
+
+        # Setup min and max size
+        self.minsize(500, 300)
+        self.maxsize(800, 500)
+
+    def openMainWindow(self):
+        # Show the main window
+        self.deiconify()
+
+    def getTextFromUser(self):
+        file_path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
+        if file_path:
+            # Get the directory path
+            directory_path = os.path.dirname(file_path)
+
+            # Get the file name
+            file_name = os.path.basename(file_path)
+
+            self.path_to_text_folder = directory_path
+            self.text_file_name = file_name[:-4]
+
+            # Hide the main window
+            self.withdraw()
+
+            # After text is recived processing starts
+            self.voiceProcessor = VoiceProcessor(root_instance=self,
+                                                 path_to_text_folder=directory_path, text_file_name=file_name[:-4])
+
+
+    def getBookFromUser(self):
         file_path = filedialog.askopenfilename(filetypes=[("PDF Files", "*.pdf")])
         if file_path:
             # Get the directory path
@@ -49,131 +98,17 @@ class PDFtoVoiceApp:
             )
             converter.convert_to_text()
 
-            self.path_to_text_folder = directory_path
-            self.text_file_name = file_name[:-4]
+            # Hide the main window
+            self.withdraw()
 
-            # After PDF conversion, display additional options
-            self.display_voice_options()
-
-    def select_text(self):
-        file_path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
-        if file_path:
-            # Get the directory path
-            directory_path = os.path.dirname(file_path)
-
-            # Get the file name
-            file_name = os.path.basename(file_path)
-
-            self.path_to_text_folder = directory_path
-            self.text_file_name = file_name[:-4]
-
-            # After selecting a text file, display additional options
-            self.display_voice_options()
-
-    def display_voice_options(self):
-        # Close the current window, if any
-        if self.current_window:
-            self.current_window.destroy()
-
-        # Create a new window for voice options
-        voice_window = tk.Toplevel(self.root)
-        self.current_window = voice_window
-        voice_window.title("Voice Options")
-
-        # Create a frame to hold the buttons
-        button_frame = tk.Frame(voice_window)
-        button_frame.pack(pady=20)  # Add some vertical spacing
-
-        # Create buttons for voice options with horizontal spacing
-        espeak_button = tk.Button(button_frame, text="Use espeak", command=lambda: self.voice_with("Use espeak"))
-        gtts_button = tk.Button(button_frame, text="Use gTTS", command=lambda: self.voice_with("Use gTTS"))
-        ai_tts_button = tk.Button(button_frame, text="Use AI TTS", command=lambda: self.voice_with("Use AI TTS"))
-
-        # Pack buttons horizontally with spacing
-        espeak_button.pack(side=tk.LEFT, padx=10)
-        gtts_button.pack(side=tk.LEFT, padx=10)
-        ai_tts_button.pack(side=tk.LEFT, padx=10)
-
-    def load_settings_from_file(self, path_to_save):
-
-        # standard fields for any settings
-        data = {
-            "input_text_name": self.text_file_name,
-            "text_folder": self.path_to_text_folder,
-            "temp_folder": self.temp_folder,
-            "voiced_folder": self.path_to_text_folder
-        }
-
-        # updating custom settings
-        paths = self.current_directory + "/" + self.settings_file + "/" + path_to_save + ".json"
-        with open(paths, 'r') as file:
-            data.update(json.load(file))
-
-        return data
+            # After PDF conversion and PDF to text conversion start processing
+            self.voiceProcessor = VoiceProcessor(root_instance=self,
+                                                 path_to_text_folder=directory_path, text_file_name=file_name[:-4])
 
 
-    def voice_with(self, option):
-        # Close the current window, if any
-        if self.current_window:
-            self.current_window.destroy()
 
-        # Create a new window for voice settings
-        settings_window = tk.Toplevel(self.root)
-        self.current_window = settings_window
-        settings_window.title(f"{option} Settings")
-
-        # Define dictionaries with field names and default values for each option
-        espeak_fields = self.load_settings_from_file("espeak_fields")
-
-        gtts_fields = self.load_settings_from_file("gtts_fields")
-
-        ai_tts_fields = self.load_settings_from_file("ai_tts_fields")
-
-        # Get the appropriate fields based on the selected option
-        if option == "Use espeak":
-            fields = espeak_fields
-        elif option == "Use gTTS":
-            fields = gtts_fields
-        elif option == "Use AI TTS":
-            fields = ai_tts_fields
-
-        row = 0  # Row counter for grid layout
-
-        # Create input fields based on the fields dictionary
-        input_entries = {}
-        for field_name, default_value in fields.items():
-            # Label for field name (on the left)
-            label = tk.Label(settings_window, text=field_name)
-            label.grid(row=row, column=0, sticky="w", padx=10)  # Left-align label
-
-            # Entry for input (on the right)
-            entry = tk.Entry(settings_window)
-            entry.insert(0, default_value)  # Set default value
-            entry.grid(row=row, column=1, padx=10)  # Right-align entry
-            input_entries[field_name] = entry
-
-            row += 1  # Move to the next row for the next input field
-
-        # Create a "Next" button
-        def next_button_callback():
-            # Retrieve values from input fields
-            values = {field_name: entry.get() for field_name, entry in input_entries.items()}
-            if option == "Use espeak":
-                processor = TextToVoiceProcessor(**values)
-                processor.process_chunks()
-            elif option == "Use gTTS":
-                processor = TextToVoiceProcessorGTTS(**values)
-                processor.process_chunks()
-            elif option == "Use AI TTS":
-                processor = TextToVoiceProcessorTTSfree(**values)
-                processor.process_chunks()
-
-        next_button = tk.Button(settings_window, text="Next", command=next_button_callback)
-        next_button.grid(row=row, columnspan=2, pady=10)  # Span two columns for the button
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
-
-    app = PDFtoVoiceApp(root)
-    root.mainloop()
+    app = App()
+    app.mainloop()
