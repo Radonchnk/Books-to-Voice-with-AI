@@ -3,7 +3,7 @@
             "max_retries": 1,
             "retry_delay": 1,
             "attempt_use_gpu": 1,
-            "max_simultaneous_threads": 1,
+            "max_simultaneous_threads": 2,
             "language": "en",
             "model_path": "parler-tts/parler-tts-mini-expresso",
             "description": "Jenny speaks at an average pace with an animated delivery in a very confined sounding environment with clear audio quality."
