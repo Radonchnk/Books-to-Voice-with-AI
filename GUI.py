@@ -1,8 +1,7 @@
 from customtkinter import *
-
-
 from tools.PDFtoTEXT import *
 from voiceProcessor import VoiceProcessor
+
 
 class App(CTk):
     def __init__(self, *args, **kwargs):
@@ -80,7 +79,6 @@ class App(CTk):
             self.voiceProcessor = VoiceProcessor(root_instance=self,
                                                  path_to_text_folder=directory_path, text_file_name=file_name[:-4])
 
-
     def getBookFromUser(self):
         file_path = filedialog.askopenfilename(filetypes=[("PDF Files", "*.pdf")])
         if file_path:
@@ -104,9 +102,6 @@ class App(CTk):
             # After PDF conversion and PDF to text conversion start processing
             self.voiceProcessor = VoiceProcessor(root_instance=self,
                                                  path_to_text_folder=directory_path, text_file_name=file_name[:-4])
-
-
-
 
 
 if __name__ == "__main__":
