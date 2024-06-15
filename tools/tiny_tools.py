@@ -4,8 +4,9 @@ from mutagen.mp3 import MP3
 import shutil
 import time
 
-class tools_set:
-    def Espeak(self, temp_folder, text, output_filename):
+
+class ToolsSet:
+    def espeak(self, temp_folder, text, output_filename):
         # Generate the WAV file using espeak
         temp_wav_file = os.path.join(temp_folder, f"{output_filename}.wav")
         subprocess.run(["espeak", text, "-w", temp_wav_file])
@@ -87,8 +88,8 @@ class tools_set:
         # This punction prints how much ime is spent generating and estimated time
         time_taken = time.time() - time_start
         expected_time_seconds = (chunks_total - (chunks_done + 1)) * (time_taken / (chunks_done + 1))
-        hours_left, minutes_left, seconds_left = tools_set.format_time(expected_time_seconds)
-        hours_spent, minutes_spent, seconds_spent = tools_set.format_time(time_taken)
+        hours_left, minutes_left, seconds_left = ToolsSet.format_time(expected_time_seconds)
+        hours_spent, minutes_spent, seconds_spent = ToolsSet.format_time(time_taken)
 
         print(f"\n\n\n======================================")
         print(f"Chunks processed {chunks_done + 1}/{chunks_total}")

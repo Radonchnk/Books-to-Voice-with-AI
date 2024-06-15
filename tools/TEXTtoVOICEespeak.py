@@ -16,7 +16,7 @@ class TextToVoiceProcessor:
         self.retry_delay = int(retry_delay)
         self.max_simultaneous_threads = int(max_simultaneous_threads)
         self.chunks = []
-        self.tools = tools_set()
+        self.tools = ToolsSet()
         self.len = 0
         self.time_start = time.time()
 
@@ -27,7 +27,7 @@ class TextToVoiceProcessor:
             try:
                 print(f"Processing chunk {idx}...")
 
-                self.tools.Espeak(self.temp_folder, text, f'chunk{idx}')
+                self.tools.espeak(self.temp_folder, text, f'chunk{idx}')
 
                 self.tools.time_manager(time_start=self.time_start, chunks_done=idx, chunks_total=self.len)
 
