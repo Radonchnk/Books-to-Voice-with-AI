@@ -59,7 +59,7 @@ class TextToSpeach:
 
 
 if __name__ == "__main__":
-    tts = Model("parler-tts/parler-tts-mini-expresso")
-    waveform = tts.textToSpeech("printed and bound in the united states of america.", "Jenny speaks at \
-    an average pace with an animated delivery in a very confined sounding environment with clear audio quality.")
+    tts = Model("parler-tts/parler-tts-mini-expresso", "cuda",
+                "Jenny speaks at an average pace with an animated delivery in a very confined sounding environment with clear audio quality.")
+    waveform = tts.textToSpeech("printed and bound in the united states of america.")
     tts.saveToFile(waveform, "output.wav")
