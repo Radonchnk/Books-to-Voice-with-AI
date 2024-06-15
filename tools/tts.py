@@ -7,20 +7,18 @@ import re
 
 
 class Model:
-    def __init__(self, modelName):
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    def __init__(self, modelName, device, description):
+        self.device = torch.device(device)
         self.model = ParlerTTSForConditionalGeneration.from_pretrained(modelName).to(self.device)
         self.tokeniser = AutoTokenizer.from_pretrained(modelName, use_fast=False)
+        self.description = description
 
-    def textToSpeech(self, text, description, run=0):
-        inputIDs = self.tokeniser(description, return_tensors="pt").input_ids.to(self.device)
+    def textToSpeech(self, text):
+        inputIDs = self.tokeniser(self.description, return_tensors="pt").input_ids.to(self.device)
         promptInputIDs = self.tokeniser(text, return_tensors="pt").input_ids.to(self.device)
         set_seed(42)
         generation = self.model.generate(input_ids=inputIDs, prompt_input_ids=promptInputIDs, max_length=2580)
         audioArr = generation.cpu().numpy().squeeze()
-        if str(audioArr) == "0.0" and run != 2:
-            run += 1
-            return self.textToSpeech(text, description, run=run)
         return audioArr
 
     def saveToFile(self, waveform, fileName):
@@ -49,17 +47,21 @@ class TextToSpeach:
         self.tts = model
         # self.tts = Model(model_name)
 
-    def textToMP3(self, text, outputFile, description):
+    @staticmethod
+    def is_gpu_available():
         if torch.cuda.is_available():
-            print("""CUDA IS USED""")
+            return True
+        else:
+            return False
 
+    def textToMP3(self, text, outputFile, description):
         waveformOutput = self.tts.textToSpeech(text, description)
 
         self.tts.saveToFile(waveformOutput, outputFile)
 
 
 if __name__ == "__main__":
-    tts = Model("parler-tts/parler-tts-mini-expresso")
-    waveform = tts.textToSpeech("printed and bound in the united states of america.", "Jenny speaks at \
-    an average pace with an animated delivery in a very confined sounding environment with clear audio quality.")
+    tts = Model("parler-tts/parler-tts-mini-expresso", "gpu",
+                "Jenny speaks at an average pace with an animated delivery in a very confined sounding environment with clear audio quality.")
+    waveform = tts.textToSpeech("printed and bound in the united states of america.")
     tts.saveToFile(waveform, "output.wav")

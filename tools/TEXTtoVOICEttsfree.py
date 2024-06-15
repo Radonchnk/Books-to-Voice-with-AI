@@ -10,7 +10,7 @@ from mutagen.mp3 import MP3
 
 class TextToVoiceProcessorTTSfree:
     def __init__(self, input_text_name, temp_folder, text_folder, voiced_folder, chunk_size, max_retries, retry_delay,
-                 max_simultaneous_threads, language, model_path, description=""):
+                 attempt_use_gpu, max_simultaneous_threads, language, model_path, description=""):
         self.input_text_name = input_text_name
         self.temp_folder = temp_folder #+ str()
         self.text_folder = text_folder
@@ -18,15 +18,29 @@ class TextToVoiceProcessorTTSfree:
         self.chunk_size = int(chunk_size)
         self.max_retries = int(max_retries)
         self.retry_delay = int(retry_delay)
+
+        self.attempt_use_gpu = int(attempt_use_gpu)
         self.max_simultaneous_threads = int(max_simultaneous_threads)
+
         self.language = language
-        self.ttsModel = Model(model_path)
-        self.tts = TextToSpeach(self.ttsModel)
         self.chunks = []
         self.len = 0
         self.time_start = time.time()
         self.tools = tools_set()
         self.description = description
+
+        # Process available devices
+
+        if not self.attempt_use_gpu:
+            # Use cpu by default
+            self.CPUttsModel = Model(model_path, "cpu", self.description)
+            self.tts = TextToSpeach(self.CPUttsModel)
+        elif self.attempt_use_gpu and TextToSpeach.is_gpu_available():
+            # If GPU is there and USE_GPU load model using gpu
+            self.GPUttsModel = Model(model_path, "gpu", self.description)
+            self.tts = TextToSpeach(self.GPUttsModel)
+        elif self.attempt_use_gpu:
+            raise "GPU is not available"
 
     def get_mp3_duration(self, mp3_path):
         audio = MP3(mp3_path)
@@ -50,6 +64,7 @@ class TextToVoiceProcessorTTSfree:
                 output_mp3_file = os.path.join(self.temp_folder, f'chunk{idx}.mp3')
 
                 print(f"Text of the processed chunk:\n{text}")
+                # Call model an process text
                 self.tts.textToMP3(text, output_wav_file, self.description)
 
                 chunk_audio = AudioSegment.from_wav(output_wav_file)

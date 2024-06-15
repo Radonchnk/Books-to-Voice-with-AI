@@ -2,6 +2,7 @@
             "chunk_size": 10,
             "max_retries": 2,
             "retry_delay": 1,
+            "attempt_use_gpu": 1,
             "max_simultaneous_threads": 1,
             "language": "en",
             "model_path": "parler-tts/parler-tts-mini-expresso",
