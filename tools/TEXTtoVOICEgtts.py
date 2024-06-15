@@ -24,6 +24,7 @@ class TextToVoiceProcessorGTTS:
         retry_count = 0
         while retry_count <= self.max_retries:
             try:
+                # TODO - Comment
                 print(f"Processing chunk {idx}...")
                 tts = gTTS(text, lang=self.language, slow=False)
 
@@ -48,7 +49,7 @@ class TextToVoiceProcessorGTTS:
             self.tools.time_manager(time_start=self.time_start, chunks_done=idx, chunks_total=self.len)
 
     def process_chunks(self):
-
+        # TODO - Comment
         if not os.path.exists(self.temp_folder):
             os.makedirs(self.temp_folder)
 

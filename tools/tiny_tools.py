@@ -51,6 +51,7 @@ class ToolsSet:
         all_files = [f"chunk{x}.mp3" for x in all_files]
         pairs = create_pairs(all_files)
 
+        # TODO - Comment
         while len(os.listdir(folder)) > 1:
             for i in range(len(pairs)):
                 if len(pairs[i]) != 1:
