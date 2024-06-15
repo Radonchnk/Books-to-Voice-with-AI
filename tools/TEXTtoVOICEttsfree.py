@@ -110,7 +110,7 @@ class TextToVoiceProcessorTTSfree:
         # if the amount of retries has reached the max, use ESPEAK
         if retry_count == self.max_retries:
             print("Using ESPEAK to replace unprocessed chunk")
-            self.tools.espeak(self.temp_folder, text, f'chunk{idx}')
+            self.tools.Espeak(self.temp_folder, text, f'chunk{idx}')
             self.tools.time_manager(time_start=self.time_start, chunks_done=idx, chunks_total=self.len)
 
             with self.lock:
