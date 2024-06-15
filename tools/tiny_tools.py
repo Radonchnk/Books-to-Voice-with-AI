@@ -91,7 +91,7 @@ class tools_set:
         hours_spent, minutes_spent, seconds_spent = tools_set.format_time(time_taken)
 
         print(f"\n\n\n======================================")
-        print(f"Chunks processed {chunks_done}/{chunks_total}")
+        print(f"Chunks processed {chunks_done + 1}/{chunks_total}")
         print(f"Time spent: {hours_spent}:{minutes_spent}:{seconds_spent}")
         print(f"Expected time left: {hours_left}:{minutes_left}:{seconds_left}")
         print(f"======================================")
