@@ -10,7 +10,7 @@ import threading
 
 class TextToVoiceProcessorTTSfree:
     def __init__(self, input_text_name, temp_folder, text_folder, voiced_folder, chunk_size, max_retries, retry_delay,
-                 max_simultaneous_threads, language, model_path, description="", attempt_use_gpu=1):
+                 max_simultaneous_threads, language, model_path, description="", attempt_useGPU=1):
         self.input_text_name = input_text_name
         self.temp_folder = temp_folder
         self.text_folder = text_folder
@@ -29,17 +29,17 @@ class TextToVoiceProcessorTTSfree:
         self.lock = threading.Lock()
         self.cpu_ready = threading.Event()
         self.gpu_ready = threading.Event()
-        self.cpu_ready.set()  # CPU is initially ready
-        self.gpu_ready.set()  # GPU is initially ready if available
+        self.cpu_ready.set()
+        self.gpu_ready.set()
 
-        # Initialize models
-        self.CPUttsModel = Model(model_path, "cpu", self.description)
-        self.CPUtts = TextToSpeach(self.CPUttsModel)
+        # Initialise models
+        self.cpuTTSModel = Model(model_path, "cpu", self.description)
+        self.cpuTTS = TextToSpeach(self.cpuTTSModel)
 
         if TextToSpeach.is_gpu_available():
-            self.GPUttsModel = Model(model_path, "cuda", self.description)
-            self.GPUtts = TextToSpeach(self.GPUttsModel)
-            self.use_gpu = True
+            self.gpuTTSModel = Model(model_path, "cuda", self.description)
+            self.gpuTTS = TextToSpeach(self.gpuTTSModel)
+            self.useGPU = True
             print("""
                _____          _       
               / ____|        | |      
@@ -48,7 +48,7 @@ class TextToVoiceProcessorTTSfree:
              | |___| |_| | (_| | (_| |
               \_____\__,_|\__,_|\__,_|""")
         else:
-            self.use_gpu = False
+            self.useGPU = False
             print("GPU not available, using CPU only")
 
     def _send_tts_request(self, text, idx):
@@ -59,13 +59,13 @@ class TextToVoiceProcessorTTSfree:
                 device = None
 
                 with self.lock:
-                    if self.use_gpu and self.gpu_ready.is_set():
+                    if self.useGPU and self.gpu_ready.is_set():
                         self.gpu_ready.clear()
-                        tts = self.GPUtts
+                        tts = self.gpuTTS
                         device = "cuda"
                     elif self.cpu_ready.is_set():
                         self.cpu_ready.clear()
-                        tts = self.CPUtts
+                        tts = self.cpuTTS
                         device = "cpu"
 
                 if tts is None:
@@ -154,7 +154,7 @@ if __name__ == "__main__":
         chunk_size=1000,
         max_retries=1000,
         retry_delay=600,
-        max_simultaneous_threads=2,  # You can increase this based on your system capabilities
+        max_simultaneous_threads=2,
         language="en",
         model_path="parler-tts/parler-tts-mini-espresso",
     )
