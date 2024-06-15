@@ -1,3 +1,5 @@
+import os
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tools.tts import *
 from tools.tiny_tools import *
@@ -24,23 +26,20 @@ class TextToVoiceProcessorTTSfree:
         self.tools = ToolsSet()
         self.description = description
 
-        # Create thread management for the CPU and GPU model
         self.lock = threading.Lock()
-        self.cpuReady = threading.Event()
-        self.gpuReady = threading.Event()
-        # Set them to ready
-        self.cpuReady.set()
-        self.gpuReady.set()
+        self.cpu_ready = threading.Event()
+        self.gpu_ready = threading.Event()
+        self.cpu_ready.set()
+        self.gpu_ready.set()
 
         # Initialise models
         self.cpuTTSModel = Model(model_path, "cpu", self.description)
         self.cpuTTS = TextToSpeach(self.cpuTTSModel)
 
-        # If cuda is available and the user has chosen to use it, use cuda & cpu
-        if TextToSpeach.is_gpu_available() and attempt_use_gpu == 1:
+        if TextToSpeach.is_gpu_available():
             self.gpuTTSModel = Model(model_path, "cuda", self.description)
             self.gpuTTS = TextToSpeach(self.gpuTTSModel)
-            self.use_gpu = True
+            self.useGPU = True
             print("""
                _____          _       
               / ____|        | |      
@@ -49,7 +48,7 @@ class TextToVoiceProcessorTTSfree:
              | |___| |_| | (_| | (_| |
               \_____\__,_|\__,_|\__,_|""")
         else:
-            self.use_gpu = False
+            self.useGPU = False
             print("GPU not available, using CPU only")
 
     def _send_tts_request(self, text, idx):
@@ -58,14 +57,14 @@ class TextToVoiceProcessorTTSfree:
             try:
                 tts = None
                 device = None
-                # If the gpu is ready, use the gpu, if the cpu is ready, use that
+
                 with self.lock:
-                    if self.use_gpu and self.gpuReady.is_set():
-                        self.gpuReady.clear()
+                    if self.useGPU and self.gpu_ready.is_set():
+                        self.gpu_ready.clear()
                         tts = self.gpuTTS
                         device = "cuda"
-                    elif self.cpuReady.is_set():
-                        self.cpuReady.clear()
+                    elif self.cpu_ready.is_set():
+                        self.cpu_ready.clear()
                         tts = self.cpuTTS
                         device = "cpu"
 
@@ -95,9 +94,9 @@ class TextToVoiceProcessorTTSfree:
 
                 with self.lock:
                     if device == "cuda":
-                        self.gpuReady.set()
+                        self.gpu_ready.set()
                     else:
-                        self.cpuReady.set()
+                        self.cpu_ready.set()
 
                 return
 
@@ -107,7 +106,6 @@ class TextToVoiceProcessorTTSfree:
                 print(f"Retrying chunk {idx} ({retry_count}/{self.max_retries})...")
                 time.sleep(self.retry_delay)
 
-        # if the amount of retries has reached the max, use ESPEAK
         if retry_count == self.max_retries:
             print("Using ESPEAK to replace unprocessed chunk")
             self.tools.Espeak(self.temp_folder, text, f'chunk{idx}')
@@ -115,42 +113,36 @@ class TextToVoiceProcessorTTSfree:
 
             with self.lock:
                 if device == "cuda":
-                    self.gpuReady.set()
+                    self.gpu_ready.set()
                 else:
-                    self.cpuReady.set()
+                    self.cpu_ready.set()
 
     def process_chunks(self):
-        # create temp folder
         if not os.path.exists(self.temp_folder):
             os.makedirs(self.temp_folder)
 
-        # create final output folder
         if not os.path.exists(self.voiced_folder):
             os.makedirs(self.voiced_folder)
 
-        # open text file and read input
         with open(f"{self.text_folder}/{self.input_text_name}.txt", 'r', encoding='utf-8') as f:
             input_text = f.read()
 
         sentences = self.tools.divide_into_sentences(input_text)
-        # split it into chunks
         self.chunks = self.tools.split_into_sub_arrays(sentences, self.chunk_size)
         self.len = len(self.chunks)
 
-        # Use threads to allow multiple chunks to be processed at once
         with ThreadPoolExecutor(max_workers=self.max_simultaneous_threads) as executor:
             futures = [executor.submit(self._send_tts_request, chunk, idx) for idx, chunk in enumerate(self.chunks)]
             for future in as_completed(futures):
                 future.result()
 
-        # Merge the audio files together
         self.tools.merge_audio_pairs(self.temp_folder)
         final_output_file = os.path.join(self.voiced_folder, f'{self.input_text_name}.mp3')
         shutil.move(f"{self.temp_folder}/chunk0.mp3", final_output_file)
         os.rmdir(self.temp_folder)
 
         print("Temporary folder removed.")
-        print("Text has been voiced and saved to './voices' directory.")
+        print("Text has been voiced and saved to 'voices' directory.")
 
 
 if __name__ == "__main__":
