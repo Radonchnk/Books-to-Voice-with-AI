@@ -47,21 +47,17 @@ class TextToSpeach:
         self.tts = model
         # self.tts = Model(model_name)
 
-    @staticmethod
-    def is_gpu_available():
-        if torch.cuda.is_available():
-            return True
-        else:
-            return False
-
     def textToMP3(self, text, outputFile, description):
+        if torch.cuda.is_available():
+            print("""CUDA IS USED""")
+
         waveformOutput = self.tts.textToSpeech(text, description)
 
         self.tts.saveToFile(waveformOutput, outputFile)
 
 
 if __name__ == "__main__":
-    tts = Model("parler-tts/parler-tts-mini-expresso", "gpu",
-                "Jenny speaks at an average pace with an animated delivery in a very confined sounding environment with clear audio quality.")
-    waveform = tts.textToSpeech("printed and bound in the united states of america.")
+    tts = Model("parler-tts/parler-tts-mini-expresso")
+    waveform = tts.textToSpeech("printed and bound in the united states of america.", "Jenny speaks at \
+    an average pace with an animated delivery in a very confined sounding environment with clear audio quality.")
     tts.saveToFile(waveform, "output.wav")
