@@ -37,7 +37,7 @@ class TextToVoiceProcessorTTSfree:
             self.tts = TextToSpeach(self.CPUttsModel)
         elif self.attempt_use_gpu and TextToSpeach.is_gpu_available():
             # If GPU is there and USE_GPU load model using gpu
-            self.GPUttsModel = Model(model_path, "gpu", self.description)
+            self.GPUttsModel = Model(model_path, "cuda", self.description)
             self.tts = TextToSpeach(self.GPUttsModel)
         elif self.attempt_use_gpu:
             raise "GPU is not available"
