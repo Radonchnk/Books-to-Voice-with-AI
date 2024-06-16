@@ -75,6 +75,7 @@ class ContinueBook(CTk):
                      file[-3:] == "txt"]
 
         notGenerated = [x for x in textFiles if x not in audioFiles]
+        notGenerated.sort()
 
         self.label = CTkLabel(master=self.frame, text=f"Left to generate: {len(notGenerated)}/{len(textFiles)}")
         self.label.grid(row=1, column=0, pady=12, padx=10, columnspan=3)
