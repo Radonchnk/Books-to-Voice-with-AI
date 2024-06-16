@@ -4,6 +4,7 @@ from parler_tts import ParlerTTSForConditionalGeneration
 import soundfile as sf
 from num2words import num2words
 import re
+from unidecode import unidecode
 
 
 class Model:
@@ -51,6 +52,8 @@ class TextToSpeach:
         self.tts = model
 
     def textToMP3(self, text, outputFile):
+        text = tts.replaceNumbersWithWords(text)
+        text = unidecode(text)
         waveformOutput = self.tts.textToSpeech(text)
 
         self.tts.saveToFile(waveformOutput, outputFile)
