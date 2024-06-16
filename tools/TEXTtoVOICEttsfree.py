@@ -117,6 +117,12 @@ class TextToVoiceProcessorTTSfree:
                 print(f"Retrying chunk {idx} ({retry_count}/{self.max_retries})...")
                 time.sleep(self.retry_delay)
                 gc.collect()
+                with self.lock:
+                    if device == "cuda":
+                        self.gpu_ready.set()
+                    else:
+                        self.cpu_ready.set()
+                gc.collect()
 
         if retry_count == self.max_retries:
             print("Using ESPEAK to replace unprocessed chunk")
