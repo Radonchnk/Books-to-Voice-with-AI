@@ -77,7 +77,7 @@ class VoiceProcessor(CTk):
         }
 
         # updating custom settings
-        paths = self.current_directory + "/" + self.settings_file + "/" + path_to_save + ".json"
+        paths = os.path.join(self.current_directory, self.settings_file, path_to_save + ".json")
         with open(paths, 'r') as file:
             data.update(json.load(file))
 
@@ -244,7 +244,7 @@ class VoiceProcessor(CTk):
             processor = TextToVoiceProcessorGTTS(**values)
             processor.process_chunks()
         elif self.current_window == "Self Hosted TTS":
-            processor = TextToVoiceProcessorTTSfree(**values)
+            processor = TextToVoiceProcessorTTSfree(settings=values, **values)
             processor.process_chunks()
 
     def goBackEvent(self):

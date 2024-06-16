@@ -9,8 +9,8 @@ import threading
 
 
 class TextToVoiceProcessorTTSfree:
-    def __init__(self, input_text_name, temp_folder, text_folder, voiced_folder, chunk_size, max_retries, retry_delay,
-                 max_simultaneous_threads, language, model_path, description="", attempt_use_gpu=1):
+    def __init__(self, input_text_name="", temp_folder="", text_folder="", voiced_folder="", chunk_size="", max_retries="", retry_delay="",
+                 max_simultaneous_threads="", language="", model_path="", description="", attempt_use_gpu=1, continue_generation = 0, not_generated = "", settings = ""):
         self.input_text_name = input_text_name
         self.temp_folder = temp_folder
         self.text_folder = text_folder
@@ -32,6 +32,11 @@ class TextToVoiceProcessorTTSfree:
         self.cpu_ready.set()
         self.gpu_ready.set()
 
+        # For continuing generaion
+        self.continue_generation = continue_generation
+        self.not_generated = not_generated
+        self.settings = settings
+
         # Initialise models
         self.cpuTTSModel = Model(model_path, "cpu", self.description)
         self.cpuTTS = TextToSpeach(self.cpuTTSModel)
@@ -51,7 +56,7 @@ class TextToVoiceProcessorTTSfree:
             self.useGPU = False
             print("GPU not available, using CPU only")
 
-    def _send_tts_request(self, text, idx):
+    def _send_tts_request(self, idx):
         retry_count = 0
         while retry_count < self.max_retries:
             try:
@@ -72,10 +77,16 @@ class TextToVoiceProcessorTTSfree:
                     time.sleep(1)  # Wait a bit before trying again
                     continue
 
-                print(f"Processing chunk {idx}/{self.len} on {device}...")
+                print(f"Processing chunk {idx + 1}/{self.len} on {device}...")
 
+                text_file = os.path.join(self.temp_folder, f"chunk{idx}.txt")
                 output_wav_file = os.path.join(self.temp_folder, f'chunk{idx}.wav')
                 output_mp3_file = os.path.join(self.temp_folder, f'chunk{idx}.mp3')
+
+                # Read text which is going to be voiced
+                with open(file=text_file) as f:
+                    text = f.readlines()
+                    text = " ".join(text)
 
                 print(f"Text of the processed chunk:\n{text}")
                 # Call model and process text
@@ -118,23 +129,49 @@ class TextToVoiceProcessorTTSfree:
                     self.cpu_ready.set()
 
     def process_chunks(self):
-        if not os.path.exists(self.temp_folder):
-            os.makedirs(self.temp_folder)
+        if not self.continue_generation:
+            # Create temp folder
+            if not os.path.exists(self.temp_folder):
+                os.makedirs(self.temp_folder)
 
-        if not os.path.exists(self.voiced_folder):
-            os.makedirs(self.voiced_folder)
+            # Create output folder
+            if not os.path.exists(self.voiced_folder):
+                os.makedirs(self.voiced_folder)
 
-        with open(f"{self.text_folder}/{self.input_text_name}.txt", 'r', encoding='utf-8') as f:
-            input_text = f.read()
 
-        sentences = self.tools.divide_into_sentences(input_text)
-        self.chunks = self.tools.split_into_sub_arrays(sentences, self.chunk_size)
-        self.len = len(self.chunks)
+            with open(f"{self.text_folder}/{self.input_text_name}.txt", 'r', encoding='utf-8') as f:
+                input_text = f.read()
 
-        with ThreadPoolExecutor(max_workers=self.max_simultaneous_threads) as executor:
-            futures = [executor.submit(self._send_tts_request, chunk, idx) for idx, chunk in enumerate(self.chunks)]
-            for future in as_completed(futures):
-                future.result()
+            sentences = self.tools.divide_into_sentences(input_text)
+            self.chunks = self.tools.split_into_sub_arrays(sentences, self.chunk_size)
+            self.len = len(self.chunks)
+
+            # Creating the metadata file
+            self.tools.create_metadata_file(folder_path=self.temp_folder, generation_method="Self Hosted TTS",
+                                            total_chunks=self.len, settings=self.settings)
+
+            self.tools.create_text_chunks(text_array=self.chunks, folder_path=self.temp_folder)
+
+            with ThreadPoolExecutor(max_workers=self.max_simultaneous_threads) as executor:
+                futures = [executor.submit(self._send_tts_request, idx) for idx in range(self.len)]
+                for future in as_completed(futures):
+                    future.result()
+        else:
+
+            with open(f"{self.text_folder}/{self.input_text_name}.txt", 'r', encoding='utf-8') as f:
+                input_text = f.read()
+
+            sentences = self.tools.divide_into_sentences(input_text)
+            self.chunks = self.tools.split_into_sub_arrays(sentences, self.chunk_size)
+            self.len = len(self.chunks)
+
+            with ThreadPoolExecutor(max_workers=self.max_simultaneous_threads) as executor:
+                futures = [executor.submit(self._send_tts_request, idx) for idx in self.not_generated]
+                for future in as_completed(futures):
+                    future.result()
+
+        # Clear up data from metadata and text before merge
+        self.tools.clear_metadata_and_texts(folder_path=self.temp_folder, total_chunks=self.len)
 
         self.tools.merge_audio_pairs(self.temp_folder)
         final_output_file = os.path.join(self.voiced_folder, f'{self.input_text_name}.mp3')

@@ -3,6 +3,7 @@ import os
 from mutagen.mp3 import MP3
 import shutil
 import time
+import json
 
 class ToolsSet:
     def Espeak(self, temp_folder, text, output_filename):
@@ -45,7 +46,7 @@ class ToolsSet:
 
         # read all files
         all_files = [int(file[5:-4]) for file in os.listdir(folder) if
-                     os.path.isfile(os.path.join(folder, file))]
+                     file[-3:] == "mp3"]
         all_files = sorted(all_files)
         all_files = [f"chunk{x}.mp3" for x in all_files]
         pairs = create_pairs(all_files)
@@ -163,3 +164,32 @@ class ToolsSet:
             subarrays.append(''.join(current_subarray))
 
         return subarrays
+
+    @classmethod
+    def create_metadata_file(cls, folder_path, generation_method, total_chunks, settings):
+        data = {
+            "generation_method": generation_method,
+            "total_chunks": total_chunks,
+            "settings": settings
+        }
+
+        metadata_path = os.path.join(folder_path, "metadata.json")
+
+        with open(metadata_path, "w") as f:
+            json.dump(data, f, indent=4)
+
+    @classmethod
+    def create_text_chunks(cls, text_array, folder_path):
+        for idx, chunk_text in enumerate(text_array):
+            folder = os.path.join(folder_path, f"chunk{idx}.txt")
+            with open(folder, "w") as f:
+                # remove \n cuz buggy
+                chunk_text = " ".join(chunk_text.split("\n"))
+                f.write(chunk_text)
+    @classmethod
+    def clear_metadata_and_texts(cls, folder_path, total_chunks):
+        metadata = os.path.join(folder_path, "metadata.json")
+        os.remove(metadata)
+        for idx in range(total_chunks):
+            path = os.path.join(folder_path, f"chunk{idx}.txt")
+            os.remove(path)

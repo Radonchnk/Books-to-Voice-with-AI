@@ -1,6 +1,8 @@
 from customtkinter import *
 from tools.PDFtoTEXT import *
-from voiceProcessor import VoiceProcessor
+
+from gui.voiceProcessor import VoiceProcessor
+from gui.continueBook import ContinueBook
 
 
 class App(CTk):
@@ -37,9 +39,14 @@ class App(CTk):
         button1 = CTkButton(master=self.frame, text="Convert text to audio", command=self.getTextFromUser,
                             width=200,height=50)
         button1.configure(font=("Roboto", 18))
+
         button2 = CTkButton(master=self.frame, text="Convert book to audio", command=self.getBookFromUser, width=200,
                             height=50)
         button2.configure(font=("Roboto", 18))
+
+        button3 = CTkButton(master=self.frame, text="Keep working on book", command=self.continueBookEvent, width=200,
+                            height=50)
+        button3.configure(font=("Roboto", 18))
 
         # Places buttons
         self.frame.grid_rowconfigure(1, weight=1)
@@ -47,6 +54,7 @@ class App(CTk):
 
         button1.grid(row=1, column=0, pady=12, padx=(10, 10))
         button2.grid(row=2, column=0, pady=12, padx=(10, 10))
+        button3.grid(row=3, column=0, pady=12, padx=(10, 10))
 
         self.frame.grid_columnconfigure(0, weight=1)
 
@@ -103,6 +111,15 @@ class App(CTk):
             self.voiceProcessor = VoiceProcessor(root_instance=self,
                                                  path_to_text_folder=directory_path, text_file_name=file_name[:-4])
 
+    def continueBookEvent(self):
+        # get path to folder with book in progress
+        path_to_text_folder = filedialog.askdirectory()
+
+        # Hide the main window
+        self.withdraw()
+
+        # After PDF conversion and PDF to text conversion start processing
+        self.ContinueBook = ContinueBook(root_instance=self, book_path=path_to_text_folder)
 
 if __name__ == "__main__":
     app = App()
