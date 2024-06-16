@@ -52,7 +52,7 @@ class TextToSpeach:
         self.tts = model
 
     def textToMP3(self, text, outputFile):
-        text = tts.replaceNumbersWithWords(text)
+        text = self.tts.replaceNumbersWithWords(text)
         text = unidecode(text)
         waveformOutput = self.tts.textToSpeech(text)
 
