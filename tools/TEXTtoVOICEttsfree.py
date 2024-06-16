@@ -1,5 +1,4 @@
-import os
-import time
+import gc
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tools.tts import *
 from tools.tiny_tools import *
@@ -11,6 +10,7 @@ import threading
 class TextToVoiceProcessorTTSfree:
     def __init__(self, input_text_name="", temp_folder="", text_folder="", voiced_folder="", chunk_size="", max_retries="", retry_delay="",
                  max_simultaneous_threads="", language="", model_path="", description="", attempt_use_gpu=1, continue_generation = 0, not_generated = "", settings = ""):
+        gc.enable()
         self.input_text_name = input_text_name
         self.temp_folder = temp_folder
         self.text_folder = text_folder
@@ -108,7 +108,7 @@ class TextToVoiceProcessorTTSfree:
                         self.gpu_ready.set()
                     else:
                         self.cpu_ready.set()
-
+                gc.collect()
                 return
 
             except Exception as e:
@@ -116,6 +116,7 @@ class TextToVoiceProcessorTTSfree:
                 retry_count += 1
                 print(f"Retrying chunk {idx} ({retry_count}/{self.max_retries})...")
                 time.sleep(self.retry_delay)
+                gc.collect()
 
         if retry_count == self.max_retries:
             print("Using ESPEAK to replace unprocessed chunk")
@@ -127,7 +128,7 @@ class TextToVoiceProcessorTTSfree:
                     self.gpu_ready.set()
                 else:
                     self.cpu_ready.set()
-
+            gc.collect()
     def process_chunks(self):
         if not self.continue_generation:
             # Create temp folder
