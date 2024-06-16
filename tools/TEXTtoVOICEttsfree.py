@@ -165,6 +165,8 @@ class TextToVoiceProcessorTTSfree:
             self.chunks = self.tools.split_into_sub_arrays(sentences, self.chunk_size)
             self.len = len(self.chunks)
 
+            print(self.not_generated)
+
             with ThreadPoolExecutor(max_workers=self.max_simultaneous_threads) as executor:
                 futures = [executor.submit(self._send_tts_request, idx) for idx in self.not_generated]
                 for future in as_completed(futures):
