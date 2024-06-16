@@ -84,7 +84,7 @@ class TextToVoiceProcessorTTSfree:
                 output_mp3_file = os.path.join(self.temp_folder, f'chunk{idx}.mp3')
 
                 # Read text which is going to be voiced
-                with open(file=text_file) as f:
+                with open(file=text_file, encoding="utf-8") as f:
                     text = f.readlines()
                     text = " ".join(text)
 

@@ -78,7 +78,7 @@ class VoiceProcessor(CTk):
 
         # updating custom settings
         paths = os.path.join(self.current_directory, self.settings_file, path_to_save + ".json")
-        with open(paths, 'r') as file:
+        with open(paths, 'r', encoding="utf-8") as file:
             data.update(json.load(file))
 
         return data
