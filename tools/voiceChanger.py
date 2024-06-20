@@ -1,5 +1,7 @@
 from rvc_python.infer import infer_file
 import torch
+import os
+from pydub import AudioSegment
 
 
 class VoiceChange:
@@ -7,6 +9,9 @@ class VoiceChange:
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
     def changeVoice(self, audioInput, output):
+        self.convToWav(audioInput)
+        audioInput = audioInput.replace(".mp3",".wav")
+        output = output.replace(".mp3",".wav")
         result = infer_file(
             input_path=audioInput,
             model_path="./model.pth",
@@ -20,11 +25,25 @@ class VoiceChange:
             resample_sr=0,
             rms_mix_rate=0.25,
             protect=0.33,
-            version="v2"
+            version="v2",
         )
-        print(result)
+        self.convToMp3(output)
         print("Inference completed. Output saved to:", result)
+
+    def convToWav(self, file):
+        audioSegment = AudioSegment.from_mp3(file)
+        self.file = file
+        print("converting to wav")
+        audioSegment.export(file.replace(".mp3",".wav"), format="wav")
+
+    def convToMp3(self, file):
+        file = file.replace(".mp3",".wav")
+        audioSegment = AudioSegment.from_wav(file)
+        print("converting back to mp3")
+        audioSegment.export(file.replace(".wav",".mp3"), format="mp3")
+        print(file)
 
 
 if __name__ == "__main__":
+    # VoiceChange().convToMp3("./chunk0.wav")
     VoiceChange().changeVoice("./chunk0.mp3", "./output.mp3")

@@ -1,6 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from tools.tiny_tools import *
 import shutil
+from tools import voiceChanger
 
 
 class TextToVoiceProcessor:
@@ -18,6 +19,7 @@ class TextToVoiceProcessor:
         self.tools = ToolsSet()
         self.len = 0
         self.time_start = time.time()
+        self.voice_changer = voiceChanger.VoiceChange()
 
     def _send_tts_request(self, text, idx):
 
@@ -26,7 +28,9 @@ class TextToVoiceProcessor:
             try:
                 print(f"Processing chunk {idx}...")
 
-                self.tools.Espeak(self.temp_folder, text, f'chunk{idx}')
+                self.tools.Espeak(self.temp_folder, text, f'chunk_before_convert{idx}')
+                self.voice_changer.changeVoice(f"{self.temp_folder}/chunk_before_convert{idx}.mp3", f"{self.temp_folder}/chunk{idx}.mp3")
+                os.remove(f'{self.temp_folder}/chunk_before_convert{idx}.mp3')
 
                 self.tools.time_manager(time_start=self.time_start, chunks_done=idx, chunks_total=self.len)
 
@@ -41,7 +45,7 @@ class TextToVoiceProcessor:
 
 
     def process_chunks(self):
-        # TODO - Comment eSpeek
+        # TODO - Comment eSpeak
 
 
         if not os.path.exists(self.temp_folder):
@@ -60,6 +64,10 @@ class TextToVoiceProcessor:
         with ThreadPoolExecutor(max_workers=self.max_simultaneous_threads) as executor:
             for idx, chunk in enumerate(self.chunks):
                 executor.submit(self._send_tts_request, chunk, idx)
+
+        for file in os.listdir(self.temp_folder):
+            if "before_convert" in file or ".wav" in file:
+                os.remove(os.path.join(self.temp_folder, file))
 
         self.tools.merge_audio_pairs(self.temp_folder)
 

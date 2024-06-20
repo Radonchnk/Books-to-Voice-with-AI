@@ -4,6 +4,8 @@ from mutagen.mp3 import MP3
 import shutil
 import time
 import json
+from pydub import AudioSegment
+
 
 class ToolsSet:
     def Espeak(self, temp_folder, text, output_filename):
@@ -28,8 +30,14 @@ class ToolsSet:
     def merge_audio_pairs(cls, folder):
         # This function merges
         def concatenate_mp3_files(file1, file2, output_file):
-            command = ["ffmpeg", "-i", "concat:{}|{}".format(file1, file2), "-c", "copy", f"{folder}/temp.mp3"]
-            subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # command = ["ffmpeg", "-i", "concat:{}|{}".format(file1, file2), "-c", "copy", f"{folder}/temp.mp3"]
+            # subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            wavFiles = [file1, file2]
+            mergedAudio = AudioSegment.empty()
+            for wavFile in wavFiles:
+                audioSegment = AudioSegment.from_mp3(wavFile)
+                mergedAudio += audioSegment
+            mergedAudio.export(f'{folder}/temp.mp3', format='mp3')
 
             if os.path.exists(f"{folder}/temp.mp3"):
                 os.remove(file1)
