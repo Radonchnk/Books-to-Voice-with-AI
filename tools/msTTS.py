@@ -1,8 +1,7 @@
 import pyttsx3
-import wave
 
 
-def save_speech_to_wav(text, output_filename):
+def saveSpeechToWav(text, output_filename):
     engine = pyttsx3.init()
 
     # Set properties before adding anything to speak
@@ -20,10 +19,10 @@ def save_speech_to_wav(text, output_filename):
     engine.save_to_file(text, output_filename)
     engine.runAndWait()
 
-# Example usage
+
 with open("./../texts/smallText.txt", "r") as f:
     text_to_speak = f.read()
 output_file = "output.wav"
-save_speech_to_wav(text_to_speak, output_file)
+saveSpeechToWav(text_to_speak, output_file)
 
 print(f"Speech has been saved to {output_file}")
