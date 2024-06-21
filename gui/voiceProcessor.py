@@ -238,7 +238,7 @@ class VoiceProcessor(CTk):
         # get every value from the the form
         values = {field_name: entry.get() for field_name, entry in input_entries.items()}
         if self.current_window == "Espeak TTS":
-            processor = TextToVoiceProcessor(**values)
+            processor = TextToVoiceProcessor(settings=values, **values)
             processor.process_chunks()
         elif self.current_window == "Google TTS":
             processor = TextToVoiceProcessorGTTS(**values)

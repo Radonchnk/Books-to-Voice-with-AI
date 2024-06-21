@@ -1,5 +1,6 @@
 import os
 import json
+import re
 
 from customtkinter import *
 
@@ -57,6 +58,8 @@ class ContinueBook(CTk):
 
     def restartGeneration(self):
 
+        ### This function first fetches all text files + all audio files finds no gnerated text files and passes them down
+
         metadata = os.path.join(self.book_path, "metadata.json")
 
         with open(metadata) as f:
@@ -68,11 +71,21 @@ class ContinueBook(CTk):
         self.label.grid(row=0, column=0, pady=12, padx=10, columnspan=3)
         self.label.configure(font=("Roboto", 18))
 
-        audioFiles = [int(file[5:-4]) for file in os.listdir(self.book_path) if
-                     file[-3:] == "mp3"]
+        audioFiles = []
+        for file in os.listdir(self.book_path):
+            if file.endswith(".mp3"):
+                # Extract numbers using regex
+                numbers = re.findall(r'\d+', file)
+                if numbers:  # Ensure there's at least one number found
+                    audioFiles.append(int(numbers[0]))
 
-        textFiles = [int(file[5:-4]) for file in os.listdir(self.book_path) if
-                     file[-3:] == "txt"]
+        textFiles = []
+        for file in os.listdir(self.book_path):
+            if file.endswith(".txt"):
+                # Extract numbers using regex
+                numbers = re.findall(r'\d+', file)
+                if numbers:  # Ensure there's at least one number found
+                    textFiles.append(int(numbers[0]))
 
         notGenerated = [x for x in textFiles if x not in audioFiles]
         notGenerated.sort()
@@ -89,6 +102,10 @@ class ContinueBook(CTk):
         if generation_method == "Self Hosted TTS":
             values = data["settings"]
             processor = TextToVoiceProcessorTTSfree(continue_generation=1, not_generated=notGenerated ,**values)
+            processor.process_chunks()
+        elif generation_method == "Espeak TTS":
+            values = data["settings"]
+            processor = TextToVoiceProcessor(continue_generation=1, not_generated=notGenerated, **values)
             processor.process_chunks()
 
     def goBackEvent(self):

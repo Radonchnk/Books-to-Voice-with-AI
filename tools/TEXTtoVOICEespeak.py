@@ -1,4 +1,4 @@
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from tools.tiny_tools import *
 import shutil
 from tools import voiceChanger
@@ -6,7 +6,7 @@ from tools import voiceChanger
 
 class TextToVoiceProcessor:
     def __init__(self, input_text_name, temp_folder, text_folder, voiced_folder, chunk_size, max_retries, retry_delay,
-                 max_simultaneous_threads):
+                 max_simultaneous_threads, continue_generation=0, not_generated="", settings=""):
         self.input_text_name = input_text_name
         self.temp_folder = temp_folder
         self.text_folder = text_folder
@@ -21,12 +21,24 @@ class TextToVoiceProcessor:
         self.time_start = time.time()
         self.voice_changer = voiceChanger.VoiceChange()
 
-    def _send_tts_request(self, text, idx):
+        # For continuing generation
+        self.continue_generation = continue_generation
+        self.not_generated = not_generated
+        self.settings = settings
+
+    def _send_tts_request(self, idx):
 
         retry_count = 0
         while retry_count <= self.max_retries:
             try:
                 print(f"Processing chunk {idx}...")
+
+                # Get text file name fom the file
+                text_file = os.path.join(self.temp_folder, f"chunk{idx}.txt")
+                # Read text which is going to be voiced
+                with open(file=text_file, encoding="utf-8") as f:
+                    text = f.readlines()
+                    text = " ".join(text)
 
                 self.tools.Espeak(self.temp_folder, text, f'chunk_before_convert{idx}')
                 self.voice_changer.changeVoice(f"{self.temp_folder}/chunk_before_convert{idx}.mp3", f"{self.temp_folder}/chunk{idx}.mp3")
@@ -46,28 +58,53 @@ class TextToVoiceProcessor:
 
     def process_chunks(self):
         # TODO - Comment eSpeak
+        if not self.continue_generation:
 
+            if not os.path.exists(self.temp_folder):
+                os.makedirs(self.temp_folder)
 
-        if not os.path.exists(self.temp_folder):
-            os.makedirs(self.temp_folder)
+            if not os.path.exists(self.voiced_folder):
+                os.makedirs(self.voiced_folder)
 
-        if not os.path.exists(self.voiced_folder):
-            os.makedirs(self.voiced_folder)
+            with open(f"{self.text_folder}/{self.input_text_name}.txt", 'r', encoding='utf-8') as f:
+                input_text = f.read()
 
-        with open(f"{self.text_folder}/{self.input_text_name}.txt", 'r', encoding='utf-8') as f:
-            input_text = f.read()
+            sentences = self.tools.divide_into_sentences(input_text)
+            self.chunks = self.tools.split_into_sub_arrays(sentences, self.chunk_size)
+            self.len = len(self.chunks)
 
-        sentences = self.tools.divide_into_sentences(input_text)
-        self.chunks = self.tools.split_into_sub_arrays(sentences, self.chunk_size)
-        self.len = len(self.chunks)
+            # Creating the metadata file
+            self.tools.create_metadata_file(folder_path=self.temp_folder, generation_method="Espeak TTS",
+                                            total_chunks=self.len, settings=self.settings)
 
-        with ThreadPoolExecutor(max_workers=self.max_simultaneous_threads) as executor:
-            for idx, chunk in enumerate(self.chunks):
-                executor.submit(self._send_tts_request, chunk, idx)
+            # Creates chunks of text which are voiced
+            self.tools.create_text_chunks(text_array=self.chunks, folder_path=self.temp_folder)
+
+            with ThreadPoolExecutor(max_workers=self.max_simultaneous_threads) as executor:
+                futures = [executor.submit(self._send_tts_request, idx) for idx in range(self.len)]
+                for future in as_completed(futures):
+                    future.result()
+
+        else:
+
+            with open(f"{self.text_folder}/{self.input_text_name}.txt", 'r', encoding='utf-8') as f:
+                input_text = f.read()
+
+            sentences = self.tools.divide_into_sentences(input_text)
+            self.chunks = self.tools.split_into_sub_arrays(sentences, self.chunk_size)
+            self.len = len(self.chunks)
+
+            with ThreadPoolExecutor(max_workers=self.max_simultaneous_threads) as executor:
+                futures = [executor.submit(self._send_tts_request, idx) for idx in self.not_generated]
+                for future in as_completed(futures):
+                    future.result()
 
         for file in os.listdir(self.temp_folder):
             if "before_convert" in file or ".wav" in file:
                 os.remove(os.path.join(self.temp_folder, file))
+
+        # Clear up data from metadata and text before merge
+        self.tools.clear_metadata_and_texts(folder_path=self.temp_folder, total_chunks=self.len)
 
         self.tools.merge_audio_pairs(self.temp_folder)
 
