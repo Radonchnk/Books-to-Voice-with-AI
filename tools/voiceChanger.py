@@ -1,3 +1,4 @@
+import gc
 import torch
 from pydub import AudioSegment
 from rvc_python.infer import infer_file
@@ -28,6 +29,7 @@ class VoiceChange:
         )
         self.convToMp3(output)
         print("Inference completed. Output saved to:", result)
+        gc.collect()
 
     def convToWav(self, file):
         audioSegment = AudioSegment.from_mp3(file)
