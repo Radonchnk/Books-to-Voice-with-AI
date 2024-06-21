@@ -1,3 +1,5 @@
+rvc-python
+tensorboardX
 frontend
 torch
 soundfile

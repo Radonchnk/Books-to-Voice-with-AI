@@ -1,7 +1,6 @@
-from rvc_python.infer import infer_file
 import torch
-import os
 from pydub import AudioSegment
+from rvc_python.infer import infer_file
 
 
 class VoiceChange:

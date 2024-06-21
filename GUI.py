@@ -1,3 +1,5 @@
+import os
+import requests
 from customtkinter import *
 from tools.PDFtoTEXT import *
 
@@ -9,6 +11,9 @@ class App(CTk):
     def __init__(self, *args, **kwargs):
         # Simular structure in other applications
         super().__init__(*args, **kwargs)
+        # Check if model exists and download it if not
+        if not os.path.exists('model.pth'):
+            self.downloadModel()
 
         set_appearance_mode("dark")
         set_default_color_theme("green")
@@ -63,6 +68,16 @@ class App(CTk):
         # Setup min and max size
         self.minsize(500, 300)
         self.maxsize(800, 500)
+
+    def downloadModel(self):
+        url = "https://www.dropbox.com/scl/fi/8rgd80r8r6sr10uuyysmk/model.pth?rlkey=rhv7ev2r6ftsvis1o2o8of9ol&st=smoo4dw3&dl=1"
+        print("Downloading eSpeak Cleanup model to your project root directory")
+        response = requests.get(url, stream=True)
+        if response.status_code == 200:
+            with open("./model.pth", 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+        print("Successfully downloaded the model")
 
     def openMainWindow(self):
         # Show the main window
