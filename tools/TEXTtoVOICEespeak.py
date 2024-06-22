@@ -6,7 +6,7 @@ from tools import voiceChanger
 
 class TextToVoiceProcessor:
     def __init__(self, input_text_name, temp_folder, text_folder, voiced_folder, chunk_size, max_retries, retry_delay,
-                 max_simultaneous_threads, continue_generation=0, not_generated="", settings=""):
+                 max_simultaneous_threads, use_gpu, continue_generation=0, not_generated="", settings=""):
         self.input_text_name = input_text_name
         self.temp_folder = temp_folder
         self.text_folder = text_folder
@@ -19,7 +19,7 @@ class TextToVoiceProcessor:
         self.tools = ToolsSet()
         self.len = 0
         self.time_start = time.time()
-        self.voice_changer = voiceChanger.VoiceChange()
+        self.voice_changer = voiceChanger.VoiceChange(use_gpu=use_gpu)
 
         # For continuing generation
         self.continue_generation = continue_generation

@@ -5,8 +5,19 @@ from rvc_python.infer import infer_file
 
 
 class VoiceChange:
-    def __init__(self):
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+    def __init__(self, use_gpu):
+        if torch.cuda.is_available() and use_gpu:
+            self.device = "cuda"
+            print("""
+               _____          _       
+              / ____|        | |      
+             | |    _   _  __| | __ _ 
+             | |   | | | |/ _` |/ _` |
+             | |___| |_| | (_| | (_| |
+              \_____\__,_|\__,_|\__,_|""")
+        else:
+            self.device = "cpu"
+            print("CPU is used")
         print(f"Voice changer is loaded on {'cuda' if torch.cuda.is_available() else 'cpu'}")
 
     def changeVoice(self, audioInput, output):
