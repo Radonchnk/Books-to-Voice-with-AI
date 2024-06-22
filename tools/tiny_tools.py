@@ -5,6 +5,8 @@ import shutil
 import time
 import json
 from pydub import AudioSegment
+import pyttsx3
+import random
 
 
 class ToolsSet:
@@ -19,6 +21,26 @@ class ToolsSet:
 
         # Remove the intermediate WAV file
         os.remove(temp_wav_file)
+
+    def EspeakOutputWithAudioArray(self, text):
+        engine = pyttsx3.init(driverName='espeak')
+        engine.setProperty('rate', 150)
+        engine.setProperty('volume', 0.9)
+        voices = engine.getProperty('voices')
+        for voice in voices:
+            if "hazel" in voice.id.lower():
+                engine.setProperty("voice", "Hazel")
+                break
+        else:
+            engine.setProperty("voice", "english_rp")
+        fileName = f"./temp{random.randint(1, 9999)}.wav"
+        engine.save_to_file(text=text, filename=fileName)
+        engine.runAndWait()
+        # Sleep needed to prevent file not found error
+        time.sleep(0.1)
+        audioSegment = AudioSegment.from_wav(fileName)
+        os.remove(fileName)
+        return audioSegment
 
     @classmethod
     def get_mp3_duration(cls, mp3_path):

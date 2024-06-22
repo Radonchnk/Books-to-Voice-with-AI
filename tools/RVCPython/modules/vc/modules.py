@@ -204,9 +204,8 @@ class VC:
                 if os.path.exists(file_index)
                 else "Index not used."
             )
-            print(tgt_sr)
             audio_segment = AudioSegment(
-                audio_opt.tobytes(), frame_rate=tgt_sr, sample_width=2, channels=1
+                audio_opt.tobytes(), frame_rate=44000, sample_width=2, channels=1
             )
             return audio_segment
         except:

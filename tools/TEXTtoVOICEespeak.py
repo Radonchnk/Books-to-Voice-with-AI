@@ -1,3 +1,4 @@
+from tools.RVCPython.infer import Infer
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tools.tiny_tools import *
 import shutil
@@ -40,7 +41,8 @@ class TextToVoiceProcessor:
         self.CPU_voice_changer = voiceChanger.VoiceChange(use_gpu=0) # use cpu
 
         if voiceChanger.VoiceChange.is_gpu_available() and int(use_gpu):
-            self.GPU_voice_changer =  voiceChanger.VoiceChange(use_gpu=1) # use gpu
+            self.GPU_voice_changer = voiceChanger.VoiceChange(use_gpu=1) # use gpu
+            self.voiceChangingModel = Infer('./model.pth', device="cuda")
             self.useGPU = True
             print("""
                        _____          _       
@@ -51,6 +53,7 @@ class TextToVoiceProcessor:
                       \_____\__,_|\__,_|\__,_|""")
         else:
             self.useGPU = False
+            self.voiceChangingModel = Infer('./model.pth', device="cpu")
             print("GPU not available, using CPU only")
 
     def _send_tts_request(self, idx):
@@ -88,12 +91,12 @@ class TextToVoiceProcessor:
                     text = f.readlines()
                     text = " ".join(text)
 
-                self.tools.Espeak(self.temp_folder, text, f'chunk_before_convert{idx}')
+                # self.tools.Espeak(self.temp_folder, text, f'chunk_before_convert{idx}')
+                audioData = self.tools.EspeakOutputWithAudioArray(text)
 
                 # calling specific voice clearer based on device
-                voice_chainger_model.changeVoice(f"{self.temp_folder}/chunk_before_convert{idx}.mp3", f"{self.temp_folder}/chunk{idx}.mp3")
-                os.remove(f'{self.temp_folder}/chunk_before_convert{idx}.mp3')
-
+                audioData = self.voiceChangingModel.changeVoiceAndStoreAudioArray(audioData)
+                self.voiceChangingModel.saveAudioSegment(audioData, os.path.join(self.temp_folder, f"chunk{idx}.mp3"))
                 self.tools.time_manager(time_start=self.time_start, chunks_done=idx, chunks_total=self.len)
 
                 print(f"Chunk {idx} processed successfully.")

@@ -16,3 +16,4 @@ git+https://github.com/huggingface/parler-tts.git
 customtkinter
 CTkMenuBar
 unidecode
+pyttsx3

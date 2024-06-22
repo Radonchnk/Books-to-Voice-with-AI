@@ -56,11 +56,10 @@ class Infer:
             file_index2="",
 
         )
-        print(frameRate)
         return audioArr
 
-    def saveAudioSegment(self, audioSegment):
-        audioSegment.export("./output.mp3", format="mp3")
+    def saveAudioSegment(self, audioSegment, outputFile="./output.mp3"):
+        audioSegment.export(outputFile, format="mp3")
 
 
 if __name__ == '__main__':
