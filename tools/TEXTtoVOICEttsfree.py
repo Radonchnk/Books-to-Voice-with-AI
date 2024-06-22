@@ -26,6 +26,7 @@ class TextToVoiceProcessorTTSfree:
         self.tools = ToolsSet()
         self.description = description
 
+        # Allows to use CPU+GPU
         self.lock = threading.Lock()
         self.cpu_ready = threading.Event()
         self.gpu_ready = threading.Event()
@@ -41,7 +42,7 @@ class TextToVoiceProcessorTTSfree:
         self.cpuTTSModel = Model(model_path, "cpu", self.description)
         self.cpuTTS = TextToSpeach(self.cpuTTSModel)
 
-        if TextToSpeach.is_gpu_available():
+        if TextToSpeach.is_gpu_available() and int(attempt_use_gpu):
             self.gpuTTSModel = Model(model_path, "cuda", self.description)
             self.gpuTTS = TextToSpeach(self.gpuTTSModel)
             self.useGPU = True

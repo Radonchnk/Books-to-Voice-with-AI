@@ -62,6 +62,13 @@ class VoiceChange:
         audioSegment.export(file.replace(".wav",".mp3"), format="mp3")
         print(file)
 
+    @classmethod
+    def is_gpu_available(cls):
+        if torch.cuda.is_available():
+            return True
+        else:
+            return False
+
 
 if __name__ == "__main__":
     # VoiceChange().convToMp3("./chunk0.wav")
