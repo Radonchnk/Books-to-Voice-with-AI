@@ -17,7 +17,7 @@ def downloadRVCModels(dir):
     for filename, url in files.items():
         filePath = os.path.join(folder, filename)
         if not os.path.exists(filePath):
-            print(f"Downloading {filename}...\n"+"-"*len(f"Downloading {filename}..."))
+            print(f"Downloading {filename} to {filePath}...\n"+"-"*len(f"Downloading {filename}..."))
             r = requests.get(url, stream=True)
             if r.status_code == 200:
                 with open(filePath, 'wb') as f:
