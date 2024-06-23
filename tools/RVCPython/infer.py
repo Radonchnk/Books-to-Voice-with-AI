@@ -55,6 +55,7 @@ class Infer:
             file_index2="",
 
         )
+        print(audioArr)
         gc.collect()
         return audioArr
 

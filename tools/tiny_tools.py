@@ -5,6 +5,7 @@ import shutil
 import time
 import json
 from pydub import AudioSegment
+import io
 
 
 class ToolsSet:
@@ -19,6 +20,13 @@ class ToolsSet:
 
         # Remove the intermediate WAV file
         os.remove(temp_wav_file)
+
+    def EspeakOutputWithAudioArray(self, text):
+        command = f'espeak "{text}" --stdout'
+        result = subprocess.run(command, shell=True, stdout=subprocess.PIPE)
+        audio_buffer = io.BytesIO(result.stdout)
+        audio = AudioSegment.from_file(audio_buffer, format="wav")
+        return audio
 
     @classmethod
     def get_mp3_duration(cls, mp3_path):
