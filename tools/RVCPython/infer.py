@@ -2,8 +2,7 @@ from tools.RVCPython.downloadModel import downloadRVCModels
 from tools.RVCPython.modules.vc.modules import VC
 from tools.RVCPython.configs.config import Config
 from pydub import AudioSegment
-import numpy as np
-import os
+import os, gc
 
 class Infer:
     def __init__(self,
@@ -56,6 +55,7 @@ class Infer:
             file_index2="",
 
         )
+        gc.collect()
         return audioArr
 
     def saveAudioSegment(self, audioSegment, outputFile="./output.mp3"):
