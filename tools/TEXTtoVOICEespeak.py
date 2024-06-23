@@ -55,6 +55,12 @@ class TextToVoiceProcessor:
             self.useGPU = False
             self.voiceChangingModel = Infer('./model.pth', device="cpu")
             print("GPU not available, using CPU only")
+            print("""
+              ____ ___  _   _ 
+             / ___|    \ | | | 
+            | |   | |> | | | | 
+            | |_  |___/| |_| | 
+             \____| |   \___/ """)
 
     def _send_tts_request(self, idx):
 
