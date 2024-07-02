@@ -1,5 +1,4 @@
 pyttsx3
-rvc-python
 tensorboardX
 frontend
 torch

@@ -2,8 +2,8 @@ from tools.RVCPython.infer import Infer
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tools.tiny_tools import *
 import shutil
-from tools import voiceChanger
 import threading
+import torch
 
 
 class TextToVoiceProcessor:
@@ -35,13 +35,11 @@ class TextToVoiceProcessor:
         self.cpu_ready.set()
         self.gpu_ready.set()
 
-        self.voice_changer = voiceChanger.VoiceChange(use_gpu=use_gpu)
-
         # Initialise models
-        self.CPU_voice_changer = voiceChanger.VoiceChange(use_gpu=0) # use cpu
+        self.CPU_voice_changer = Infer("./model.pth", device="cpu")
 
-        if voiceChanger.VoiceChange.is_gpu_available() and int(use_gpu):
-            self.GPU_voice_changer = voiceChanger.VoiceChange(use_gpu=1) # use gpu
+        if torch.cuda.is_available() and int(use_gpu):
+            self.GPU_voice_changer = Infer("./model.pth", device="cuda")
             self.voiceChangingModel = Infer('./model.pth', device="cuda")
             self.useGPU = True
             print("""
