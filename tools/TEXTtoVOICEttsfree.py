@@ -1,10 +1,11 @@
 import gc
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from tools.tts import *
+from tools.tts import AiModels
 from tools.tiny_tools import *
 import shutil
 from pydub import AudioSegment
 import threading
+import torch
 
 
 class TextToVoiceProcessorTTSfree:
@@ -39,12 +40,10 @@ class TextToVoiceProcessorTTSfree:
         self.settings = settings
 
         # Initialise models
-        self.cpuTTSModel = Model(model_path, "cpu", self.description)
-        self.cpuTTS = TextToSpeach(self.cpuTTSModel)
+        self.cpuTTS = AiModels(model_path, "cpu", self.description)
 
-        if TextToSpeach.is_gpu_available() and int(attempt_use_gpu):
-            self.gpuTTSModel = Model(model_path, "cuda", self.description)
-            self.gpuTTS = TextToSpeach(self.gpuTTSModel)
+        if torch.cuda.is_available() and int(attempt_use_gpu):
+            self.gpuTTS = AiModels(model_path, "cuda", self.description)
             self.useGPU = True
             print("""
                _____          _       
