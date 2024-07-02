@@ -3,12 +3,12 @@ from melo.api import TTS
 
 class MeloTTS:
     def __init__(self, device):
-        self.speed = 0.7
+        self.speed = 1
         self.model = TTS(language="EN_V2", device=device)
         self.speakerIDS = self.model.hps.data.spk2id
 
     def textToMP3(self, text, output):
-        self.model.tts_to_file(text, self.speakerIDS["EN-BR"], output, speed=self.speed)
+        self.model.tts_to_file(text, self.speakerIDS["EN-US"], output, speed=self.speed)
 
 
 if __name__ == "__main__":
