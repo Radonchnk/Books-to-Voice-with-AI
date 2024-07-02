@@ -10,10 +10,10 @@ autocorrect
 num2words
 pymupdf
 gtts
-pydub
 mutagen
 git+https://github.com/huggingface/parler-tts.git
+git+https://github.com/Turtle358/MeloTTS
 customtkinter
 CTkMenuBar
 unidecode
-pyttsx3
+rvc-python # Used for rvc-python port requirements

@@ -110,7 +110,7 @@ class ToolsSet:
         print(f"\n\n\n======================================")
         print(f"Chunks processed {chunks_done + 1}/{chunks_total}")
         print(f"Time spent: {str(hours_spent).zfill(2)}:{str(minutes_spent).zfill(2)}:{str(seconds_spent).zfill(2)}")
-        print(f"Expected time left: {hours_left}:{minutes_left}:{seconds_left}")
+        print(f"Expected time left: {str(hours_left).zfill(2)}:{str(minutes_left).zfill(2)}:{str(seconds_left).zfill(2)}")
         print(f"======================================")
 
     @classmethod

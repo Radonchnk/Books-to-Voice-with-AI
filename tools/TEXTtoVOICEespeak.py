@@ -1,4 +1,4 @@
-from tools.RVCPython.infer import Infer
+# from tools.RVCPython.infer import Infer
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tools.tiny_tools import *
 import shutil
@@ -36,11 +36,11 @@ class TextToVoiceProcessor:
         self.gpu_ready.set()
 
         # Initialise models
-        self.CPU_voice_changer = Infer("./model.pth", device="cpu")
+        # self.CPU_voice_changer = Infer("./model.pth", device="cpu")
 
         if torch.cuda.is_available() and int(use_gpu):
-            self.GPU_voice_changer = Infer("./model.pth", device="cuda")
-            self.voiceChangingModel = Infer('./model.pth', device="cuda")
+            # self.GPU_voice_changer = Infer("./model.pth", device="cuda")
+            # self.voiceChangingModel = Infer('./model.pth', device="cuda")
             self.useGPU = True
             print("""
                        _____          _       
@@ -51,7 +51,7 @@ class TextToVoiceProcessor:
                       \_____\__,_|\__,_|\__,_|""")
         else:
             self.useGPU = False
-            self.voiceChangingModel = Infer('./model.pth', device="cpu")
+            # self.voiceChangingModel = Infer('./model.pth', device="cpu")
             print("GPU not available, using CPU only")
             print("""
               ____ ___  _   _ 
@@ -75,11 +75,11 @@ class TextToVoiceProcessor:
                 with self.lock:
                     if self.useGPU and self.gpu_ready.is_set():
                         self.gpu_ready.clear()
-                        voice_chainger_model = self.GPU_voice_changer
+                        # voice_chainger_model = self.GPU_voice_changer
                         device = "cuda"
                     elif self.cpu_ready.is_set():
                         self.cpu_ready.clear()
-                        voice_chainger_model = self.CPU_voice_changer
+                        # voice_chainger_model = self.CPU_voice_changer
                         device = "cpu"
 
                 if voice_chainger_model is None:
@@ -99,8 +99,8 @@ class TextToVoiceProcessor:
                 audioData = self.tools.EspeakOutputWithAudioArray(text)
 
                 # calling specific voice clearer based on device
-                audioData = self.voiceChangingModel.changeVoiceAndStoreAudioArray(audioData)
-                self.voiceChangingModel.saveAudioSegment(audioData, os.path.join(self.temp_folder, f"chunk{idx}.mp3"))
+                # audioData = self.voiceChangingModel.changeVoiceAndStoreAudioArray(audioData)
+                # self.voiceChangingModel.saveAudioSegment(audioData, os.path.join(self.temp_folder, f"chunk{idx}.mp3"))
                 self.tools.time_manager(time_start=self.time_start, chunks_done=idx, chunks_total=self.len)
 
                 print(f"Chunk {idx} processed successfully.")
