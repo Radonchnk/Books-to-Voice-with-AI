@@ -2,7 +2,6 @@ import os.path
 
 from melo.api import TTS
 import subprocess
-import unidic
 import gc
 
 
