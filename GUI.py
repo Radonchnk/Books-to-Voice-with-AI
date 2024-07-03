@@ -1,4 +1,3 @@
-import os
 import requests
 from customtkinter import *
 from tools.PDFtoTEXT import *
