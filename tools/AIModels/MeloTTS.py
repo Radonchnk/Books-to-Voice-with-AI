@@ -9,7 +9,7 @@ class MeloTTS:
     def __init__(self, device, model):
         if model == "myshell-ai/MeloTTS-English-v2":
             self.language = "EN_V2"
-            self.speakerID = "EN-US"
+            self.speakerID = "EN-BR"
             self.speed = 1
         elif model == "myshell-ai/MeloTTS-English-v3":
             self.language = "EN_NEWEST"
