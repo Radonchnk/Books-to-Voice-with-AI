@@ -1,9 +1,15 @@
+import os.path
+
 from melo.api import TTS
+import subprocess
+import unidic
 import gc
 
 
 class MeloTTS:
     def __init__(self, device):
+        if not os.path.exists("/home/luke/Desktop/Books-to-Voice-with-AI/BooksToVoiceVenv/lib/python3.11/site-packages/unidic/dicdir"):
+            subprocess.run(["python", "-m", "unidic", "download"], check=True)
         self.speed = 1
         self.model = TTS(language="EN_V2", device=device)
         self.speakerIDS = self.model.hps.data.spk2id
