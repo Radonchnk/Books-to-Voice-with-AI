@@ -8,7 +8,9 @@ class AiModels:
         if modelName == "parler-tts/parler-tts-mini-expresso":
             self.model = ParlerTTSModel(modelName, device, description)
         elif modelName == "myshell-ai/MeloTTS-English-v2":
-            self.model = MeloTTS(device)
+            self.model = MeloTTS(device, modelName)
+        elif modelName == "myshell-ai/MeloTTS-English-v3":
+            self.model = MeloTTS(device, modelName)
         else:
             raise "That model is not found, please try with another model"
         print(f"Using {modelName}")
