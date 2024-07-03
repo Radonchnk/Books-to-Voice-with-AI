@@ -1,4 +1,5 @@
 from melo.api import TTS
+import gc
 
 
 class MeloTTS:
@@ -9,6 +10,7 @@ class MeloTTS:
 
     def textToMP3(self, text, output):
         self.model.tts_to_file(text, self.speakerIDS["EN-US"], output, speed=self.speed)
+        gc.collect()
 
 
 if __name__ == "__main__":
