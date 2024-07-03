@@ -10,15 +10,16 @@ class MeloTTS:
         if model == "myshell-ai/MeloTTS-English-v2":
             self.language = "EN_V2"
             self.speakerID = "EN-US"
+            self.speed = 1
         elif model == "myshell-ai/MeloTTS-English-v3":
             self.language = "EN_NEWEST"
             self.speakerID = "EN-Newest"
+            self.speed = 0.8
         else:
             raise IndexError
 
         if not os.path.exists(unidic.DICDIR):
             subprocess.run(["python", "-m", "unidic", "download"], check=True)
-        self.speed = 1
         self.model = TTS(language=self.language, device=device)
         self.speakerIDS = self.model.hps.data.spk2id
         print(self.speakerIDS)
