@@ -1,5 +1,4 @@
 import os.path
-
 from melo.api import TTS
 import subprocess
 import gc
