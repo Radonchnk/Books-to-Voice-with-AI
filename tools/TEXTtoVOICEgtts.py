@@ -1,6 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from gtts import gTTS
 from tools.tiny_tools import *
+from tools.fileMerging import FileMerger
 
 
 class TextToVoiceProcessorGTTS:
@@ -69,16 +70,15 @@ class TextToVoiceProcessorGTTS:
             for idx, chunk in enumerate(self.chunks):
                 executor.submit(self._send_tts_request, chunk, idx)
 
-        self.tools.merge_audio_pairs(self.temp_folder)
-
-        final_output_file = os.path.join(self.voiced_folder, f'{self.input_text_name}.mp3')
-
-        shutil.move(f"{self.temp_folder}/chunk0.mp3", final_output_file)
-
-        os.rmdir(self.temp_folder)
-
+        start = time.time()
+        fileMerger = FileMerger(self.temp_folder, self.input_text_name, self.max_simultaneous_threads)
+        audio = fileMerger.mergeManager()
+        fileMerger.saveFile(audio)
+        end = time.time()
+        shutil.rmtree(self.voiced_folder)
         print("Temporary folder removed.")
         print("Text has been voiced and saved to 'voices' directory.")
+        print(f"Time taken to merge files {end - start}")
 
 
 if __name__ == "__main__":

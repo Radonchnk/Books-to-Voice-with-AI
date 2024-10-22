@@ -2,6 +2,7 @@ import gc
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tools.tts import AiModels
 from tools.tiny_tools import *
+from tools.fileMerging import FileMerger
 import shutil
 from pydub import AudioSegment
 import threading
@@ -179,14 +180,15 @@ class TextToVoiceProcessorTTSfree:
 
         # Clear up data from metadata and text before merge
         self.tools.clear_metadata_and_texts(folder_path=self.temp_folder, total_chunks=self.len)
-
-        self.tools.merge_audio_pairs(self.temp_folder)
-        final_output_file = os.path.join(self.voiced_folder, f'{self.input_text_name}.mp3')
-        shutil.move(f"{self.temp_folder}/chunk0.mp3", final_output_file)
-        os.rmdir(self.temp_folder)
-
+        start = time.time()
+        fileMerger = FileMerger(self.temp_folder, self.input_text_name, self.max_simultaneous_threads)
+        audio = fileMerger.mergeManager()
+        fileMerger.saveFile(audio)
+        end = time.time()
+        shutil.rmtree(self.voiced_folder)
         print("Temporary folder removed.")
         print("Text has been voiced and saved to 'voices' directory.")
+        print(f"Time taken to merge files {end-start}")
 
 
 if __name__ == "__main__":
