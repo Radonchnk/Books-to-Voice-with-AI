@@ -34,6 +34,63 @@ class ToolsSet:
         duration_in_seconds = int(audio.info.length)
         return duration_in_seconds
 
+    @classmethod
+    def merge_audio_pairs(cls, folder):
+        # This function merges
+        def concatenate_mp3_files(file1, file2, output_file):
+            # command = ["ffmpeg", "-i", "concat:{}|{}".format(file1, file2), "-c", "copy", f"{folder}/temp.mp3"]
+            # subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            wavFiles = [file1, file2]
+            mergedAudio = AudioSegment.empty()
+            for wavFile in wavFiles:
+                audioSegment = AudioSegment.from_mp3(wavFile)
+                mergedAudio += audioSegment
+            mergedAudio.export(f'{folder}/temp.mp3', format='mp3')
+
+            if os.path.exists(f"{folder}/temp.mp3"):
+                os.remove(file1)
+                os.remove(file2)
+                shutil.move(f"{folder}/temp.mp3", output_file)
+
+        def create_pairs(array):
+            pairs = []
+            for i in range(0, len(array) - 1, 2):
+                pairs.append([array[i], array[i + 1]])
+            if len(array) % 2 == 1:
+                pairs.append([array[-1]])
+            return pairs
+
+        # read all files
+        all_files = [int(file[5:-4]) for file in os.listdir(folder) if
+                     file[-3:] == "mp3"]
+        all_files = sorted(all_files)
+        all_files = [f"chunk{x}.mp3" for x in all_files]
+        pairs = create_pairs(all_files)
+
+        while len(os.listdir(folder)) > 1:
+            for i in range(len(pairs)):
+                if len(pairs[i]) != 1:
+                    chunk1_file = os.path.join(folder, pairs[i][0])
+                    chunk2_file = os.path.join(folder, pairs[i][1])
+                    print(f"merging {chunk1_file}, {chunk2_file}")
+                    merged_chunk_file = os.path.join(folder, f"chunk{i}.mp3")
+
+                    concatenate_mp3_files(chunk1_file, chunk2_file, merged_chunk_file)
+                    print(f"success in merging {chunk1_file}, {chunk2_file}")
+                else:
+                    chunk_file = os.path.join(folder, pairs[i][0])
+                    merged_chunk_file = os.path.join(folder, f"chunk{i}.mp3")
+
+                    shutil.move(chunk_file, merged_chunk_file)
+
+            num_files = len(os.listdir(folder))
+            if num_files != 1:
+                all_files = [int(file[5:-4]) for file in os.listdir(folder) if
+                             os.path.isfile(os.path.join(folder, file))]
+                all_files = sorted(all_files)
+                all_files = [f"chunk{x}.mp3" for x in all_files]
+
+                pairs = create_pairs(all_files)
 
     @classmethod
     def format_time(cls, seconds):

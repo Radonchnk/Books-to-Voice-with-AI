@@ -12,8 +12,8 @@ pymupdf
 gtts
 mutagen
 git+https://github.com/huggingface/parler-tts.git
-git+https://github.com/Turtle358/MeloTTS
+# git+https://github.com/Turtle358/MeloTTS
 customtkinter
 CTkMenuBar
 unidecode
-rvc-python # Used for rvc-python port requirements
+# rvc-python # Used for rvc-python port requirements

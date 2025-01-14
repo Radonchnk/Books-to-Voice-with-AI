@@ -60,7 +60,7 @@ class VoiceProcessor(CTk):
         self.setupSelfHostedTTsAiMenu()
 
         # Place default on a screen
-        self.espeakTTsPressEvent()
+        self.selfHostedTTsAiPressEvent()
 
         # Set sizes
         self.minsize(width, height)

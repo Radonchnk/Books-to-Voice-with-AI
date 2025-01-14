@@ -181,11 +181,11 @@ class TextToVoiceProcessorTTSfree:
         # Clear up data from metadata and text before merge
         self.tools.clear_metadata_and_texts(folder_path=self.temp_folder, total_chunks=self.len)
         start = time.time()
-        fileMerger = FileMerger(self.temp_folder, self.input_text_name, self.max_simultaneous_threads)
-        audio = fileMerger.mergeManager()
-        fileMerger.saveFile(audio)
+        output_file = self.voiced_folder + "/" + self.input_text_name + ".mp3"
+        fileMerger = FileMerger(input_folder=self.temp_folder, output_file=output_file)
+        fileMerger.execute()
         end = time.time()
-        shutil.rmtree(self.voiced_folder)
+        shutil.rmtree(self.temp_folder)
         print("Temporary folder removed.")
         print("Text has been voiced and saved to 'voices' directory.")
         print(f"Time taken to merge files {end-start}")

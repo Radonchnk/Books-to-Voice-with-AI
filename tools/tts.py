@@ -12,6 +12,7 @@ class AiModels:
         elif modelName == "myshell-ai/MeloTTS-English-v3":
             self.model = MeloTTS(device, modelName)
         else:
+            print("That model is not found, please try with another model")
             raise "That model is not found, please try with another model"
         print(f"Using {modelName}")
 
