@@ -1,7 +1,7 @@
 from tools.PDFtoTEXT import *
 from tools.TEXTtoVOICEgtts import *
 from tools.TEXTtoVOICEespeak import *
-from tools.TEXTtoVOICEttsfree import *
+from tools.TEXTtoVOICESelfHosted import *
 import random
 
 def initialize_books_folder(folder_name):
@@ -89,7 +89,7 @@ def text_to_voice_gtts(path_to_text_file, text_folder="texts", temp_folder="temp
 def text_to_voice_free_tts(path_to_text_file, patho_to_models, model_path, text_folder="texts", temp_folder="temp",
                            voiced_folder="voices", chunk_size=1, max_retries=1, retry_delay=1,
                            max_simultaneous_threads=1, language = "us"):
-    processor = TextToVoiceProcessorTTSfree(
+    processor = TextToVoiceProcessorSelfHosted(
         input_text_name=path_to_text_file,
         text_folder=text_folder,
         temp_folder=temp_folder,

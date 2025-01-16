@@ -3,9 +3,8 @@ from CTkMenuBar import *
 import random
 import json
 
-from tools.TEXTtoVOICEgtts import *
 from tools.TEXTtoVOICEespeak import *
-from tools.TEXTtoVOICEttsfree import *
+from tools.TEXTtoVOICESelfHosted import *
 
 class VoiceProcessor(CTk):
     def __init__(self, root_instance, path_to_text_folder, text_file_name, *args, **kwargs):
@@ -18,11 +17,9 @@ class VoiceProcessor(CTk):
         self.current_directory = os.getcwd()
         self.settings_file = "Settings"
         self.espeak_settings = "espeak_fields"
-        self.google_settings = "gtts_fields"
-        self.self_hosted_settings = "ai_tts_fields"
+        self.self_hosted_settings = "self_hosted_tts_fields"
         self.current_window = ""
         self.row_frame_espeakTTs = []
-        self.row_frame_googleTTs = []
         self.row_frame_selfHostedTTs = []
 
         set_appearance_mode("dark")
@@ -49,13 +46,10 @@ class VoiceProcessor(CTk):
         menu = CTkMenuBar(master=self)
         menu.add_cascade("←", command=self.goBackEvent)
         menu.add_cascade("Espeak TTS", command=self.espeakTTsPressEvent)
-        menu.add_cascade("Google TTS", command=self.googleTTsPressEvent)
         menu.add_cascade("Self Hosted TTS", command=self.selfHostedTTsAiPressEvent)
 
         # Setup nn menu
         self.setupEspeakTTsMenu()
-
-        self.setupGoogleTTsMenu()
 
         self.setupSelfHostedTTsAiMenu()
 
@@ -119,42 +113,6 @@ class VoiceProcessor(CTk):
         self.frame_espeak.pack_forget()
         self.submitEspeakButton.pack_forget()
 
-    def setupGoogleTTsMenu(self):
-        self.current_window = "Google TTS"
-
-        fields = self.load_settings_from_file(self.google_settings)
-
-        # Create a frame to hold the input fields
-        self.frame_googleTTs = CTkFrame(self)
-        self.frame_googleTTs.pack(pady=20)
-
-        # Create input fields based on the fields dictionary
-        input_entries = {}
-        for field_name, default_value in fields.items():
-            # Create a container for each row (label + entry)
-            row_frame = CTkFrame(self.frame_googleTTs)
-            row_frame.pack(fill='x', pady=5)
-            self.row_frame_googleTTs.append(row_frame)  # Store reference to row frame
-
-            # Label for field name (on the left)
-            label = CTkLabel(row_frame, text=field_name)
-            label.pack(side='left', padx=10)
-
-            # Entry for input (on the right)
-            entry = CTkEntry(row_frame)
-            entry.insert(0, default_value)  # Set default value
-            entry.pack(side='right', padx=10, fill='x', expand=True)
-            input_entries[field_name] = entry
-
-        # Add a button at the end of the form
-        self.submitGoogleTTsButton = CTkButton(self.frame_googleTTs, text="Submit",
-                                            command=lambda: self.submitParameters(input_entries))
-        self.submitGoogleTTsButton.pack(pady=10)
-
-        # Forget placement
-        self.frame_googleTTs.pack_forget()
-        self.submitGoogleTTsButton.pack_forget()
-
     def setupSelfHostedTTsAiMenu(self):
         self.current_window = "Self Hosted TTS"
 
@@ -198,10 +156,6 @@ class VoiceProcessor(CTk):
         self.frame_espeak.pack_forget()
         self.submitEspeakButton.pack_forget()
 
-        # Forget placement google
-        self.frame_googleTTs.pack_forget()
-        self.submitGoogleTTsButton.pack_forget()
-
         # Forget placement self hosted
         self.frame_self_hosted.pack_forget()
         self.submitSelfHostedTTsButton.pack_forget()
@@ -214,16 +168,6 @@ class VoiceProcessor(CTk):
         # Show all input field frames for espeak
         self.frame_espeak.pack(pady=20)
         self.submitEspeakButton.pack(pady=10)
-
-
-    def googleTTsPressEvent(self):
-        self.forgetEveryPlacement()
-
-        self.current_window = "Google TTS"
-
-        # Show all input field frames for google
-        self.frame_googleTTs.pack(pady=20)
-        self.submitGoogleTTsButton.pack(pady=10)
 
     def selfHostedTTsAiPressEvent(self):
         self.forgetEveryPlacement()
@@ -240,11 +184,8 @@ class VoiceProcessor(CTk):
         if self.current_window == "Espeak TTS":
             processor = TextToVoiceProcessor(settings=values, **values)
             processor.process_chunks()
-        elif self.current_window == "Google TTS":
-            processor = TextToVoiceProcessorGTTS(**values)
-            processor.process_chunks()
         elif self.current_window == "Self Hosted TTS":
-            processor = TextToVoiceProcessorTTSfree(settings=values, **values)
+            processor = TextToVoiceProcessorSelfHosted(settings=values, **values)
             processor.process_chunks()
 
     def goBackEvent(self):

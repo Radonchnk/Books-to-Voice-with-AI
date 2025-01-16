@@ -1,5 +1,5 @@
 import os
-import fitz
+import pymupdf
 
 
 class PDFtoTEXTConverter:
@@ -19,7 +19,7 @@ class PDFtoTEXTConverter:
         # Check if the input PDF file exists
         if os.path.exists(input_pdf_path):
             # Open the PDF file using fitz
-            doc = fitz.open(input_pdf_path)
+            doc = pymupdf.open(input_pdf_path)
             text = ""
 
             for page_num in range(doc.page_count):

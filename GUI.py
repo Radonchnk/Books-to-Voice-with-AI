@@ -1,4 +1,3 @@
-import requests
 from customtkinter import *
 from tools.PDFtoTEXT import *
 
@@ -81,6 +80,7 @@ class App(CTk):
     def openMainWindow(self):
         # Show the main window
         self.deiconify()
+
 
     def getTextFromUser(self):
         file_path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
