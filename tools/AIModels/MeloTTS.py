@@ -3,10 +3,12 @@ import subprocess
 import unidic
 import gc
 import os
+import nltk
 
 
 class MeloTTS:
     def __init__(self, device, model):
+        nltk.download('averaged_perceptron_tagger_eng')
         if model == "myshell-ai/MeloTTS-English-v2":
             self.language = "EN_V2"
             self.speakerID = "EN-BR"

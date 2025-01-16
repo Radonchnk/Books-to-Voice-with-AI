@@ -1,4 +1,4 @@
-# from tools.RVCPython.infer import Infer
+
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from triton.language.extra.cuda import num_threads
@@ -10,7 +10,7 @@ import threading
 import torch
 
 
-class TextToVoiceProcessor:
+class TextToVoiceProcesFsor:
     def __init__(self, input_text_name, temp_folder, text_folder, voiced_folder, chunk_size, max_retries, retry_delay,
                  max_simultaneous_threads, use_gpu, continue_generation=0, not_generated="", settings=""):
         self.input_text_name = input_text_name

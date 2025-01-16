@@ -1,19 +1,9 @@
+requests
+customtkinter
+ctkmenubar
+git+https://github.com/myshell-ai/MeloTTS
 pyttsx3
-tensorboardX
-frontend
-torch
-soundfile
-transformers
-accelerate
-pydub
-autocorrect
-num2words
-pymupdf
+fitz
 gtts
 mutagen
-git+https://github.com/huggingface/parler-tts.git
-# git+https://github.com/Turtle358/MeloTTS
-customtkinter
-CTkMenuBar
-unidecode
-# rvc-python # Used for rvc-python port requirements
+frontend
