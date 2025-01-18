@@ -9,6 +9,8 @@ def linuxInstaller():
         subprocess.run(["python3.10", "-m", "venv", "venv"], check=True)
         subprocess.run(["venv/bin/python", "-m", "pip", "install", "-r", "requirements.txt"], check=True)
         subprocess.run(["venv/bin/python", "-m", "unidic", "download"], check=True)
+    else:
+        print("Venv already found")
 
 def windowsInstaller():
     if not os.path.exists('.venv') or not os.path.exists('venv'):
