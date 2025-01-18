@@ -21,13 +21,6 @@ class ToolsSet:
         # Remove the intermediate WAV file
         os.remove(temp_wav_file)
 
-    def EspeakOutputWithAudioArray(self, text):
-        command = f'espeak "{text}" --stdout'
-        result = subprocess.run(command, shell=True, stdout=subprocess.PIPE)
-        audio_buffer = io.BytesIO(result.stdout)
-        audio = AudioSegment.from_file(audio_buffer, format="wav")
-        return audio
-
     @classmethod
     def get_mp3_duration(cls, mp3_path):
         audio = MP3(mp3_path)
@@ -92,6 +85,7 @@ class ToolsSet:
 
                 pairs = create_pairs(all_files)
 
+
     @classmethod
     def format_time(cls, seconds):
         hours = int(seconds // 3600)
@@ -123,6 +117,7 @@ class ToolsSet:
         consecutive_numbers_count = 0
         refuse_length = 1
 
+        '''
         math_operations = {
             '+': 'plus',
             '-': 'minus',
@@ -132,6 +127,8 @@ class ToolsSet:
             '?': 'minus',
             '=': 'equals'
         }
+        '''
+        math_operations = {}
 
         for char in text:
             if char in remove_characters:

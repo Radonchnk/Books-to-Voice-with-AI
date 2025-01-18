@@ -4,9 +4,8 @@ import re
 
 from customtkinter import *
 
-from tools.TEXTtoVOICEgtts import *
 from tools.TEXTtoVOICEespeak import *
-from tools.TEXTtoVOICEttsfree import *
+from tools.TEXTtoVOICESelfHosted import *
 
 class ContinueBook(CTk):
     def __init__(self, root_instance, book_path, *args, **kwargs):
@@ -101,7 +100,7 @@ class ContinueBook(CTk):
     def submitParameters(self, generation_method, data, notGenerated):
         if generation_method == "Self Hosted TTS":
             values = data["settings"]
-            processor = TextToVoiceProcessorTTSfree(continue_generation=1, not_generated=notGenerated ,**values)
+            processor = TextToVoiceProcessorSelfHosted(continue_generation=1, not_generated=notGenerated, **values)
             processor.process_chunks()
         elif generation_method == "Espeak TTS":
             values = data["settings"]

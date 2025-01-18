@@ -9,9 +9,8 @@ import threading
 import torch
 
 
-class TextToVoiceProcessorTTSfree:
-    def __init__(self, input_text_name="", temp_folder="", text_folder="", voiced_folder="", chunk_size="", max_retries="", retry_delay="",
-                 max_simultaneous_threads="", language="", model_path="", description="", attempt_use_gpu=1, continue_generation = 0, not_generated = "", settings = ""):
+class TextToVoiceProcessorSelfHosted:
+    def __init__(self, input_text_name="", temp_folder="", text_folder="", voiced_folder="", chunk_size="", max_retries="", retry_delay="", language="", model_path="", description="", attempt_use_gpu=1, continue_generation = 0, not_generated = "", settings = ""):
         gc.enable()
         self.input_text_name = input_text_name
         self.temp_folder = temp_folder
@@ -20,7 +19,6 @@ class TextToVoiceProcessorTTSfree:
         self.chunk_size = int(chunk_size)
         self.max_retries = int(max_retries)
         self.retry_delay = int(retry_delay)
-        self.max_simultaneous_threads = int(max_simultaneous_threads)
         self.language = language
         self.chunks = []
         self.len = 0
@@ -160,10 +158,8 @@ class TextToVoiceProcessorTTSfree:
 
             self.tools.create_text_chunks(text_array=self.chunks, folder_path=self.temp_folder)
 
-            with ThreadPoolExecutor(max_workers=self.max_simultaneous_threads) as executor:
-                futures = [executor.submit(self._send_tts_request, idx) for idx in range(self.len)]
-                for future in as_completed(futures):
-                    future.result()
+            for chunk_id in range(self.len):
+                self._send_tts_request(idx=chunk_id)
         else:
 
             with open(f"{self.text_folder}/{self.input_text_name}.txt", 'r', encoding='utf-8') as f:
@@ -173,10 +169,8 @@ class TextToVoiceProcessorTTSfree:
             self.chunks = self.tools.split_into_sub_arrays(sentences, self.chunk_size)
             self.len = len(self.chunks)
 
-            with ThreadPoolExecutor(max_workers=self.max_simultaneous_threads) as executor:
-                futures = [executor.submit(self._send_tts_request, idx) for idx in self.not_generated]
-                for future in as_completed(futures):
-                    future.result()
+            for chunk_id in self.not_generated:
+                self._send_tts_request(chunk_id)
 
         # Clear up data from metadata and text before merge
         self.tools.clear_metadata_and_texts(folder_path=self.temp_folder, total_chunks=self.len)
@@ -192,7 +186,7 @@ class TextToVoiceProcessorTTSfree:
 
 
 if __name__ == "__main__":
-    processor = TextToVoiceProcessorTTSfree(
+    processor = TextToVoiceProcessorSelfHosted(
         input_text_name="smallText",
         text_folder="texts",
         temp_folder="temp",
@@ -200,7 +194,6 @@ if __name__ == "__main__":
         chunk_size=1000,
         max_retries=1000,
         retry_delay=600,
-        max_simultaneous_threads=2,
         language="en",
         model_path="parler-tts/parler-tts-mini-espresso",
     )

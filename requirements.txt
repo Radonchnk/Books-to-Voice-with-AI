@@ -3,7 +3,7 @@ customtkinter
 ctkmenubar
 git+https://github.com/myshell-ai/MeloTTS
 pyttsx3
-fitz
+pymupdf
 gtts
 mutagen
 frontend
